@@ -258,7 +258,7 @@ media
 Document
 
 {
-    "_id": "...",
+"_id": "...",
 
     "nama_media": "",
 
@@ -275,6 +275,7 @@ Document
     "createdAt": "",
 
     "updatedAt": ""
+
 }
 
 ---

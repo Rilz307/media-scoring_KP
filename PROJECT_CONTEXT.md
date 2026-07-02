@@ -1,6 +1,7 @@
 # PROJECT_CONTEXT.md
 
 # Media Scoring System
+
 **Project Kerja Praktik (KP)**
 
 Instansi:
@@ -447,7 +448,7 @@ media
 Document Example
 
 {
-    "_id": "...",
+"_id": "...",
 
     "nama_media": "",
 
@@ -464,6 +465,7 @@ Document Example
     "createdAt": "",
 
     "updatedAt": ""
+
 }
 
 ---

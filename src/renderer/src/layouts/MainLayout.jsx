@@ -1,20 +1,14 @@
 import { Outlet } from 'react-router-dom'
-
-import Sidebar from '../components/layout/Sidebar'
 import Topbar from '../components/layout/Topbar'
 
 function MainLayout() {
   return (
-    <div className="flex h-screen bg-slate-100">
-      <Sidebar />
+    <div className="flex flex-col min-h-screen bg-slate-50">
+      <Topbar />
 
-      <div className="flex flex-col flex-1">
-        <Topbar />
-
-        <main className="flex-1 overflow-auto p-6">
-          <Outlet />
-        </main>
-      </div>
+      <main className="flex-1 overflow-auto p-8 max-w-7xl w-full mx-auto">
+        <Outlet />
+      </main>
     </div>
   )
 }

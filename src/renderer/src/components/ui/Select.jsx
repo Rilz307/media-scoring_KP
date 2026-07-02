@@ -1,8 +1,4 @@
-function Select({
-  options = [],
-  value,
-  onChange
-}) {
+function Select({ options = [], value, onChange }) {
   return (
     <select
       value={value}
@@ -20,10 +16,7 @@ function Select({
       "
     >
       {options.map((option) => (
-        <option
-          key={option.value}
-          value={option.value}
-        >
+        <option key={option.value} value={option.value}>
           {option.label}
         </option>
       ))}

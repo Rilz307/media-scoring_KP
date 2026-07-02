@@ -411,12 +411,14 @@ Example:
 Milestone 3
 
 Phase A
+
 - Dependencies
 - Environment
 - Database
 - Repository
 
 Phase B
+
 - IPC
 - Preload
 - Renderer

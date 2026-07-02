@@ -15,26 +15,14 @@ function App() {
         <Route element={<MainLayout />}>
           <Route index element={<DashboardPage />} />
 
-          <Route
-            path="/media/new"
-            element={<MediaFormPage />}
-          />
+          <Route path="/media/new" element={<MediaFormPage />} />
 
-          <Route
-            path="/media/:id"
-            element={<MediaDetailPage />}
-          />
+          <Route path="/media/:id" element={<MediaDetailPage />} />
         </Route>
 
-        <Route
-          path="*"
-          element={<NotFoundPage />}
-        />
+        <Route path="*" element={<NotFoundPage />} />
 
-        <Route
-          path="/rekap"
-          element={<RekapPage />}
-        />
+        <Route path="/rekap" element={<RekapPage />} />
       </Routes>
     </BrowserRouter>
   )
