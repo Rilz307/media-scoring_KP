@@ -8,6 +8,16 @@ This project follows a milestone-based development process.
 
 # [Unreleased]
 
+## Milestone 4 - CRUD Operations
+
+### Completed
+
+- **Phase A: Backend CRUD Foundation**:
+  - Repository: Added `create()`, `update()`, and `delete()` functions in `MediaRepository.js` with validation and automatic timestamping (`createdAt` and `updatedAt`).
+  - IPC Layer: Registered namespaced IPC channels `media:create`, `media:update`, and `media:delete` inside `src/main/ipc/media.js`.
+  - Preload: Exposed `create()`, `update()`, and `delete()` methods in `src/preload/index.js` securely.
+  - Service Layer: Exposed wrapper methods `create()`, `update()`, and `delete()` inside `src/renderer/src/services/MediaService.js`.
+
 ## Milestone 3 - MongoDB Integration
 
 ### Completed

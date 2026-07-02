@@ -5,7 +5,10 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   media: {
     getAll: () => ipcRenderer.invoke('media:getAll'),
-    getById: (id) => ipcRenderer.invoke('media:getById', id)
+    getById: (id) => ipcRenderer.invoke('media:getById', id),
+    create: (data) => ipcRenderer.invoke('media:create', data),
+    update: (id, data) => ipcRenderer.invoke('media:update', id, data),
+    delete: (id) => ipcRenderer.invoke('media:delete', id)
   }
 }
 

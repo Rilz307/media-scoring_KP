@@ -22,4 +22,31 @@ export function registerMediaIPCHandlers() {
       throw error
     }
   })
+
+  ipcMain.handle('media:create', async (event, data) => {
+    try {
+      return await MediaRepository.create(data)
+    } catch (error) {
+      console.error('IPC Handler media:create error:', error.message)
+      throw error
+    }
+  })
+
+  ipcMain.handle('media:update', async (event, id, data) => {
+    try {
+      return await MediaRepository.update(id, data)
+    } catch (error) {
+      console.error(`IPC Handler media:update error for ID ${id}:`, error.message)
+      throw error
+    }
+  })
+
+  ipcMain.handle('media:delete', async (event, id) => {
+    try {
+      return await MediaRepository.delete(id)
+    } catch (error) {
+      console.error(`IPC Handler media:delete error for ID ${id}:`, error.message)
+      throw error
+    }
+  })
 }
