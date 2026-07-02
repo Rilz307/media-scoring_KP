@@ -398,4 +398,34 @@ Do not guess.
 
 ---
 
+# DEVELOPMENT WORKFLOW
+
+Default implementation unit is NOT one milestone.
+
+Default implementation unit is one PHASE.
+
+Each phase should contain several closely related tasks.
+
+Example:
+
+Milestone 3
+
+Phase A
+- Dependencies
+- Environment
+- Database
+- Repository
+
+Phase B
+- IPC
+- Preload
+- Renderer
+- Dashboard
+
+Always stop after each Phase.
+
+Never continue automatically to the next Phase.
+
+Wait for user approval.
+
 # END

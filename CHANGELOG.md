@@ -8,6 +8,12 @@ This project follows a milestone-based development process.
 
 # [Unreleased]
 
+## Milestone 3 - MongoDB Integration
+
+### Completed
+- **Sprint 3.0: Project Structure**: Created directory structure inside `src/main/` (`database/`, `repositories/`, `ipc/`).
+- **Sprint 3.1: Dependencies**: Installed `mongodb` and `dotenv` runtime packages.
+
 ## Planned
 
 ### Milestone 3 - MongoDB Integration
