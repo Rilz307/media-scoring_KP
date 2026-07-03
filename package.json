@@ -1,10 +1,28 @@
 {
   "name": "media-scoring-system",
   "version": "1.0.0",
-  "description": "An Electron application with React",
+  "description": "Aplikasi desktop Electron untuk verifikasi dan penilaian media kerja sama — Dinas Kominfo Kota Kendari",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "Dinas Komunikasi dan Informatika Kota Kendari",
+  "license": "MIT",
+  "homepage": "https://github.com/your-org/media-scoring-system",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/media-scoring-system.git"
+  },
+  "keywords": [
+    "electron",
+    "react",
+    "pdf",
+    "jspdf",
+    "government",
+    "media-scoring",
+    "kominfo"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -23,6 +41,8 @@
     "@tailwindcss/vite": "^4.3.2",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.23.0",
     "mongodb": "^7.4.0",
     "react-router-dom": "^7.18.1",

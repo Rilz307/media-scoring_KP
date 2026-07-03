@@ -8,6 +8,53 @@ This project follows a milestone-based development process.
 
 # [Unreleased]
 
+## Milestone 7 - Official Document Generation (Strict Template Engine)
+
+### Added
+
+- **PDF Configuration Layer**: Created `src/renderer/src/pdf/constants/pdfConfig.js` holding base typography, margin metrics, and formal government styling configurations.
+- **Presentation Mapping Config**: Implemented `src/renderer/src/pdf/config/pdfTemplateMap.js` to decouple document-specific terminology mappings (e.g., `pdfSubUraian`, `pdfStatus`) from the assessment domain (`mediaCriteria.js`).
+- **Template Mappers**: Added `MediaSiberTemplate.js`, `MediaCetakTemplate.js`, `MediaElektronikTemplate.js`, and `PersetujuanTemplate.js` to translate the canonical `ReportBuilder` object into structural drawing rows.
+- **PDF Document Builder**: Built `PdfDocumentBuilder.js` applying pure drawing APIs (`jspdf`, `jspdf-autotable`) to visually replicate the official DOCX layouts exactly, including dynamic row spanning.
+- **Export Service Orchestrator**: Established `PdfExportService.js` to orchestrate data translation (from `ReportBuilder` through the selected Template Mapper) into PDF generation.
+- **Media Detail UI Integration**: Integrated the "Export PDF" button to trigger official document generation with graceful error handling states.
+
+## Milestone 6 - Scoring Workflow & Assessment Engine Refinement (Revised)
+
+### Added
+
+- **ReportBuilder Normalization Layer**: Created `src/renderer/src/utils/ReportBuilder.js` as the single reusable normalization layer that maps raw database media objects to structured assessment configurations for details, print reports, and future export operations.
+- **Dynamic Score Breakdown**: Integrated section subtotals and individual question evaluations dynamically on the Media Detail page using the `ReportBuilder` layer.
+- **Dynamic Dashboard Statistics Header**: Implemented a responsive statistics block displaying total media, average scores, extreme scores (highest/lowest), and dynamic counts aggregated by media type, protected against empty database states.
+- **Form Progress Metrics**: Added real-time answered counts, unanswered counts, and fill-rate percentage displays inside the `ScoreSummary` component.
+- **Integrity Validation Checks**: Enforced payload integrity validations checking for finite scores, valid answers object shape, and complete mandatory evaluations before submission.
+
+### Refactored
+
+- **Single Source of Truth Scoring**: Moved section evaluation sub-calculations to `ScoreCalculator.js` as a public API (`calculateSectionScore`) to keep scoring rules strictly contained within the scoring module and isolated from the presentation layers.
+
+## Milestone 5 - Dynamic Assessment Engine Infrastructure
+
+### Added
+
+- **Configuration Layer**:
+  - Populated `src/renderer/src/constants/mediaCriteria.js` with structured configuration criteria lists for SIBER, CETAK, and ELEKTRONIK media.
+  - Populated `src/renderer/src/constants/gradeRules.js` with an enabled status toggle and default thresholds.
+- **Calculators**:
+  - Created `src/renderer/src/utils/ScoreCalculator.js` to dynamically compute points from selected answers and the loaded configuration list.
+  - Created `src/renderer/src/utils/GradeCalculator.js` to map total scores to grade designations if enabled.
+- **UI Components**:
+  - Created `src/renderer/src/components/form/RadioGroup.jsx` as a reusable custom selector with option point badges.
+  - Created `src/renderer/src/components/form/CriteriaCard.jsx` to wrap individual questions, details, and selection options.
+  - Created `src/renderer/src/components/form/ScoreSummary.jsx` to render a live preview card showing computed total score and grade.
+  - Created `src/renderer/src/components/form/DynamicForm.jsx` to render sections, titles, and criteria cards dynamically based on media categories.
+- **Integrated CRUD & Details**:
+  - Integrated `DynamicForm` and `ScoreSummary` inside `MediaForm.jsx`.
+  - Added required text input field for "Nama Perusahaan" inside `MediaForm.jsx`.
+  - Updated form validation to enforce completion of all questions marked as `required`.
+  - Updated `MediaDetailPage.jsx` to dynamically render assessment categories, questions, selected answers, points, and total score/grade indicators.
+  - Updated `DashboardPage.jsx` to gracefully render fallback symbols if grading rules are disabled.
+
 ## Milestone 4 - CRUD Operations
 
 ### Completed
@@ -17,6 +64,12 @@ This project follows a milestone-based development process.
   - IPC Layer: Registered namespaced IPC channels `media:create`, `media:update`, and `media:delete` inside `src/main/ipc/media.js`.
   - Preload: Exposed `create()`, `update()`, and `delete()` methods in `src/preload/index.js` securely.
   - Service Layer: Exposed wrapper methods `create()`, `update()`, and `delete()` inside `src/renderer/src/services/MediaService.js`.
+- **Phase B: Frontend CRUD Integration**:
+  - Components: Created `MediaForm.jsx` supporting form layouts and field validation (required name, email format, website URL, valid phone characters). Created reusable `ConfirmDialog.jsx` for delete confirmations.
+  - Detail Page: Updated `MediaDetailPage.jsx` to render media fields in read-only mode, and format timestamps in Indonesian locale (e.g., WITA timezone).
+  - Form Page: Configured `MediaFormPage.jsx` to handle both Create and Edit actions, page loading states, saving status disabled locks, and failure alerts with retries.
+  - Routing: Adjusted `App.jsx` to map the editing path (`/media/:id/edit`).
+  - Dashboard: Mapped action clicks to page routes, binded delete actions to the confirm modal, and resolved success toast notifications using React Router location states.
 
 ## Milestone 3 - MongoDB Integration
 

@@ -25,23 +25,11 @@ function Topbar() {
             `px-4 py-2 text-sm font-semibold rounded-lg transition ${
               isActive
                 ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-350 hover:text-white hover:bg-slate-800'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
             }`
           }
         >
           Dashboard
-        </NavLink>
-        <NavLink
-          to="/rekap"
-          className={({ isActive }) =>
-            `px-4 py-2 text-sm font-semibold rounded-lg transition ${
-              isActive
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-350 hover:text-white hover:bg-slate-800'
-            }`
-          }
-        >
-          Rekapitulasi
         </NavLink>
       </nav>
     </header>
