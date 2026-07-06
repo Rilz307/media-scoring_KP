@@ -79,9 +79,15 @@ function ScoreSummary({
             {gradeEnabled ? (
               <span
                 className={`text-xl font-bold px-3 py-0.5 rounded-full border mt-1 ${
-                  grade === 'A'
+                  ['Tinggat I', 'Tingkat I'].includes(grade)
                     ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                    : grade === 'B'
+                    : [
+                          'Tinggat II',
+                          'Tingkat II',
+                          'Tinggatil',
+                          'Tingkat III',
+                          'TingkaT III'
+                        ].includes(grade)
                       ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                       : 'bg-red-500/10 text-red-400 border-red-500/20'
                 }`}

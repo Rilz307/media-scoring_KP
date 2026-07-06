@@ -1,8 +1,38 @@
 import { MongoClient } from 'mongodb'
-import { config } from '../config/env'
+import { configService } from '../config/ConfigService'
 
 let client = null
 let db = null
+let connectionState = 'DISCONNECTED' // Default state before initialization
+let onStateChangeCallback = null
+
+/**
+ * Register a callback to be notified when connection state changes.
+ * @param {Function} callback The state change callback.
+ */
+export function setOnStateChange(callback) {
+  onStateChangeCallback = callback
+}
+
+/**
+ * Internal helper to update connection state and trigger callbacks.
+ * @param {string} newState The new state.
+ */
+export function updateState(newState) {
+  connectionState = newState
+  if (onStateChangeCallback) {
+    onStateChangeCallback(newState)
+  }
+}
+
+/**
+ * Retrieve the current connection state.
+ * @returns {string} The connection state.
+ */
+export function getConnectionState() {
+  if (db) return 'CONNECTED'
+  return connectionState
+}
 
 /**
  * Connect to MongoDB Atlas.
@@ -11,19 +41,25 @@ let db = null
 export async function connect() {
   if (db) return db
 
-  const uri = config.mongodb.uri
+  const uri = await configService.getMongoUri()
+
   if (!uri) {
-    throw new Error('MongoDB connection URI is missing from configuration.')
+    updateState('NOT_CONFIGURED')
+    return null
   }
+
+  updateState('CONNECTING')
 
   try {
     client = new MongoClient(uri)
     await client.connect()
     db = client.db('media_scoring')
     console.log('Successfully connected to MongoDB Atlas.')
+    updateState('CONNECTED')
     return db
   } catch (error) {
     console.error('Failed to connect to MongoDB Atlas:', error.message)
+    updateState('FAILED')
     throw error
   }
 }
@@ -40,14 +76,15 @@ export function getDb() {
 }
 
 /**
- * Close the database connection.
+ * Disconnect the database connection.
  */
-export async function close() {
+export async function disconnect() {
   if (client) {
     try {
       await client.close()
       db = null
       client = null
+      updateState('DISCONNECTED')
       console.log('MongoDB connection closed.')
     } catch (error) {
       console.error('Error closing MongoDB connection:', error.message)

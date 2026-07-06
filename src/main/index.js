@@ -2,13 +2,16 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import './config/env' // Initialize environment variables first
-import { connect, close } from './database/connection'
+import { connect, disconnect, setOnStateChange } from './database/connection'
 import { registerMediaIPCHandlers } from './ipc/media'
+import { registerDatabaseIPCHandlers } from './ipc/database'
+import { registerPdfIPCHandlers } from './ipc/pdf'
+
+let mainWindow = null
 
 function createWindow() {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
@@ -57,6 +60,15 @@ app.whenReady().then(async () => {
 
   // Register IPC handlers
   registerMediaIPCHandlers()
+  registerDatabaseIPCHandlers()
+  registerPdfIPCHandlers()
+
+  // Set up connection state change callback to notify Renderer
+  setOnStateChange((state) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('db:connection-state-changed', state)
+    }
+  })
 
   // Establish MongoDB connection
   try {
@@ -85,7 +97,7 @@ app.on('window-all-closed', () => {
 
 // Clean database connection teardown on application shutdown
 app.on('before-quit', async () => {
-  await close()
+  await disconnect()
 })
 
 // In this file you can include the rest of your app's specific main process

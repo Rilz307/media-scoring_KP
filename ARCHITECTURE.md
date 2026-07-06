@@ -6,7 +6,7 @@ Software Architecture Documentation
 
 Version
 
-0.2.0
+1.0.0
 
 Project
 
@@ -790,16 +790,44 @@ Role Management
 # 25. Development Workflow
 
 Milestone 1
-
 Foundation
-
 ✔ Completed
 
 Milestone 2
-
 Frontend Foundation
-
 ✔ Completed
+
+Milestone 3
+Database
+✔ Completed
+
+Milestone 4
+CRUD
+✔ Completed
+
+Milestone 5
+Dynamic Form Engine
+✔ Completed
+
+Milestone 6
+Auto Scoring
+✔ Completed
+
+Milestone 7
+Dashboard Features & PDF Export
+✔ Completed
+
+Milestone 8
+Production Build (Configuration)
+✔ Completed
+
+Milestone 9
+Testing & UAT
+⚪ Pending
+
+Milestone 10
+Production Release
+⚪ Pending
 
 Milestone 3
 

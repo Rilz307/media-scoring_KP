@@ -100,10 +100,12 @@ export default function MediaDetailPage() {
       // Allow UI to update to loading state briefly
       await new Promise((resolve) => setTimeout(resolve, 50))
 
-      const preview = PdfExportService.previewMediaReport(media)
+      const preview = await PdfExportService.previewMediaReport(media)
       setPreviewData({
         isOpen: true,
         blobUrl: preview.blobUrl,
+        isHtml: preview.isHtml,
+        htmlContent: preview.htmlContent,
         filename: preview.filename
       })
     } catch (err) {
@@ -341,9 +343,15 @@ export default function MediaDetailPage() {
                 {gradeRules.enabled ? (
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-sm font-bold border ${
-                      report.grade === 'A'
+                      ['Tinggat I', 'Tingkat I'].includes(report.grade)
                         ? 'bg-green-50 text-green-700 border-green-200'
-                        : report.grade === 'B'
+                        : [
+                              'Tinggat II',
+                              'Tingkat II',
+                              'Tinggatil',
+                              'Tingkat III',
+                              'TingkaT III'
+                            ].includes(report.grade)
                           ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
                           : 'bg-red-50 text-red-700 border-red-200'
                     }`}
@@ -399,16 +407,27 @@ export default function MediaDetailPage() {
       <PdfPreviewModal
         isOpen={previewData.isOpen}
         blobUrl={previewData.blobUrl}
+        isHtml={previewData.isHtml}
+        htmlContent={previewData.htmlContent}
         filename={previewData.filename}
         onClose={() => {
           if (previewData.blobUrl) URL.revokeObjectURL(previewData.blobUrl)
-          setPreviewData({ isOpen: false, blobUrl: null, filename: '' })
+          setPreviewData({
+            isOpen: false,
+            blobUrl: null,
+            isHtml: false,
+            htmlContent: null,
+            filename: ''
+          })
         }}
-        onDownload={() => {
+        onDownload={async () => {
           try {
-            PdfExportService.downloadMediaReport(media)
+            setExporting(true)
+            await PdfExportService.downloadMediaReport(media)
           } catch (err) {
             setError(`Gagal mengunduh PDF: ${err.message}`)
+          } finally {
+            setExporting(false)
           }
         }}
       />

@@ -1,11 +1,8 @@
-import normalizeReport from '../../utils/ReportBuilder'
-import mediaCriteria from '../../constants/mediaCriteria'
-import PdfDocumentBuilder from '../builders/PdfDocumentBuilder'
-import MediaSiberTemplate from '../templates/MediaSiberTemplate'
-import MediaCetakTemplate from '../templates/MediaCetakTemplate'
-import MediaElektronikTemplate from '../templates/MediaElektronikTemplate'
-import PersetujuanTemplate from '../templates/PersetujuanTemplate'
-import documentSettings from '../../config/documentSettings'
+import RekapitulasiViewModel from '../../documents/builders/RekapitulasiViewModel'
+import HtmlPdfRenderer from '../../documents/renderer/HtmlPdfRenderer'
+import rekapitulasiTemplate from '../../documents/templates/rekapitulasi.html?raw'
+import MediaDetailViewModel from '../../documents/builders/MediaDetailViewModel'
+import mediaDetailTemplate from '../../documents/templates/media-detail.html?raw'
 
 /**
  * PdfExportService.js
@@ -19,89 +16,64 @@ import documentSettings from '../../config/documentSettings'
  *   - No scoring / grading / layout logic lives here.
  */
 class PdfExportService {
-  static _buildMediaReport(mediaRecord) {
+  static async previewMediaReport(mediaRecord) {
     if (!mediaRecord) {
       throw new Error('Data media tidak valid untuk diekspor.')
     }
-
-    // 1. Get canonical normalized representation (Single Source of Truth)
-    const report = normalizeReport(mediaRecord, mediaCriteria)
-
-    if (!report.sections || report.sections.length === 0) {
-      throw new Error('Konfigurasi penilaian belum tersedia atau kosong.')
-    }
-
-    // 2. Select the correct template mapper
-    let templateConfig
-    if (report.jenis === 'SIBER') {
-      templateConfig = MediaSiberTemplate.compile(report)
-    } else if (report.jenis === 'CETAK') {
-      templateConfig = MediaCetakTemplate.compile(report)
-    } else if (report.jenis === 'ELEKTRONIK') {
-      templateConfig = MediaElektronikTemplate.compile(report)
-    } else {
-      throw new Error(`Template export PDF untuk jenis media "${report.jenis}" belum didukung.`)
-    }
-
-    // 3. Orchestrate drawing — PORTRAIT ONLY, no exceptions
-    const builder = new PdfDocumentBuilder({ orientation: 'portrait' })
-
-    // Draw Company Header
-    builder.drawCompanyHeader(report.nama_media, report.perusahaan)
-
-    // Draw Formatted Table — reserve footer zone so table cannot overlap signature
-    builder.drawTable(
-      templateConfig.headers,
-      templateConfig.bodyRows,
-      templateConfig.customColumnStyles,
-      builder.SIGNATURE_RESERVED_HEIGHT
-    )
-
-    // Draw Footer Declaration & Signature
-    builder.drawCompanyDeclarationAndSignature(report.perusahaan)
-
-    return builder
-  }
-
-  static previewMediaReport(mediaRecord) {
-    const builder = this._buildMediaReport(mediaRecord)
+    const viewModel = MediaDetailViewModel.build(mediaRecord)
+    const htmlString = HtmlPdfRenderer.renderToHtml(mediaDetailTemplate, viewModel)
     return {
-      blobUrl: builder.getBlobUrl(),
+      isHtml: true,
+      htmlContent: htmlString,
       filename: `Laporan_Verifikasi_${mediaRecord.jenis}_${mediaRecord.nama_media}.pdf`
     }
   }
 
-  static downloadMediaReport(mediaRecord) {
-    const builder = this._buildMediaReport(mediaRecord)
-    builder.save(`Laporan_Verifikasi_${mediaRecord.jenis}_${mediaRecord.nama_media}.pdf`)
+  static async downloadMediaReport(mediaRecord) {
+    if (!mediaRecord) {
+      throw new Error('Data media tidak valid untuk diekspor.')
+    }
+    const viewModel = MediaDetailViewModel.build(mediaRecord)
+    const htmlString = HtmlPdfRenderer.renderToHtml(mediaDetailTemplate, viewModel)
+    const pdfBuffer = await HtmlPdfRenderer.printToPdfBuffer(htmlString)
+
+    const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Laporan_Verifikasi_${mediaRecord.jenis}_${mediaRecord.nama_media}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   static _buildRekapitulasi(mediaList) {
     if (!mediaList || mediaList.length === 0) {
       throw new Error('Tidak ada data media untuk diekspor.')
     }
-
-    const builder = new PdfDocumentBuilder({
-      orientation: 'portrait'
-    })
-
-    PersetujuanTemplate.buildDocument(builder, mediaList, documentSettings)
-    return builder
   }
 
-  static previewRekapitulasi(mediaList) {
-    const builder = this._buildRekapitulasi(mediaList)
-    const dateStr = new Date().toISOString().split('T')[0]
+  static async previewRekapitulasi(mediaList) {
+    const viewModel = RekapitulasiViewModel.build(mediaList)
+    const htmlString = HtmlPdfRenderer.renderToHtml(rekapitulasiTemplate, viewModel)
     return {
-      blobUrl: builder.getBlobUrl(),
-      filename: `Rekapitulasi_Persetujuan_${dateStr}.pdf`
+      isHtml: true,
+      htmlContent: htmlString,
+      filename: `Rekapitulasi_Persetujuan_${new Date().getTime()}.pdf`
     }
   }
 
-  static downloadRekapitulasi(mediaList) {
-    const builder = this._buildRekapitulasi(mediaList)
-    const dateStr = new Date().toISOString().split('T')[0]
-    builder.save(`Rekapitulasi_Persetujuan_${dateStr}.pdf`)
+  static async downloadRekapitulasi(mediaList) {
+    const viewModel = RekapitulasiViewModel.build(mediaList)
+    const htmlString = HtmlPdfRenderer.renderToHtml(rekapitulasiTemplate, viewModel)
+    const pdfBuffer = await HtmlPdfRenderer.printToPdfBuffer(htmlString)
+
+    const blob = new Blob([pdfBuffer], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Rekapitulasi_Persetujuan_${new Date().getTime()}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 }
 

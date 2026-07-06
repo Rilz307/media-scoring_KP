@@ -5,7 +5,6 @@
   Aplikasi desktop Electron untuk Dinas Komunikasi dan Informatika (Kominfo) Kota Kendari
 </p>
 
-<p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version"/>
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?logo=electron" alt="Platform"/>
   <img src="https://img.shields.io/badge/Electron-39-47848F?logo=electron" alt="Electron"/>
@@ -16,6 +15,30 @@
 
 ---
 
+## Status Proyek
+
+Aplikasi saat ini berada pada tahap **Release Candidate (RC)**.
+
+- Core Features: **Completed**
+- PDF Detail & Rekapitulasi: **Functional** (Minor layout refinement may remain)
+- Electron Packaging: **Implemented** (Configuration)
+- Documentation: **Updated**
+- Repository Cleanup: **Ongoing**
+- User Acceptance Testing (UAT): **Pending**
+- Production Release: **Pending**
+
+### Known Limitations
+
+- Layout PDF Rekapitulasi belum sepenuhnya identik dengan template DOCX.
+- Rendering PDF bergantung pada kemampuan jsPDF, sehingga _line wrapping_ dapat sedikit berbeda jika dibandingkan dengan Microsoft Word.
+- Pengaturan koneksi MongoDB masih menggunakan _environment configuration_ (belum tersedia UI untuk mengubah database URL di dalam aplikasi).
+- Belum terdapat mekanisme _auto-update_ aplikasi.
+- Belum dilakukan UAT (User Acceptance Testing) pada lingkungan komputer pengguna akhir secara meluas.
+
+---
+
+---
+
 ## Deskripsi
 
 **Media Scoring System** adalah aplikasi desktop berbasis Electron yang menggantikan proses verifikasi dan penilaian media kerja sama yang sebelumnya dilakukan secara manual oleh Tim Verifikator Kominfo Kota Kendari.
@@ -23,47 +46,52 @@
 Sistem ini mendigitalisasi seluruh alur penilaian:
 
 - **Input data media** (Cetak, Elektronik, Siber/Online)
-- **Kalkulasi skor otomatis** berdasarkan 30+ kriteria baku per jenis media
-- **Penetapan grade** (A / B / C / Tidak Memenuhi Syarat) secara deterministik
+- **Kalkulasi skor otomatis** berdasarkan kriteria baku per jenis media
+- **Penetapan grade** secara deterministik
 - **Ekspor dokumen PDF** yang sesuai format resmi DOCX Kominfo
-- **Pratinjau PDF** di dalam aplikasi sebelum download
-- **Penyimpanan cloud** via MongoDB Atlas — data aman dan multi-user
+- **Penyimpanan cloud** via MongoDB Atlas — data aman dan mendukung penggunaan multi-user
+
+---
+
+## Screenshots
+
+_(Belum ada tangkapan layar yang ditambahkan. Anda dapat menambahkan *screenshot* setelah rilis final UI selesai disusun)._
 
 ---
 
 ## Fitur Utama
 
-| Fitur | Keterangan |
-|---|---|
-| Manajemen Data Media | Input, edit, hapus data media Cetak / Elektronik / Siber |
-| Kalkulasi Skor Otomatis | Skor dihitung real-time dari kriteria yang dikonfigurasi |
-| Grade Determination | Grade ditetapkan otomatis dari threshold yang eksplisit |
-| Form Dinamis | Form penilaian beradaptasi sesuai jenis media yang dipilih |
-| PDF Detail Verifikasi | Laporan individual sesuai format DOCX resmi Kominfo |
-| PDF Rekapitulasi | Dokumen "Persetujuan Tim Verifikator" semua media sekaligus |
-| PDF Preview System | Pratinjau dalam aplikasi, download hanya jika diinginkan |
-| Signature Bottom Anchor | Tanda tangan selalu menempel di bawah halaman terakhir |
-| Pagination Engine | Page break otomatis + reserved signature zone (80mm) |
-| Portrait-Only Mode | Semua dokumen dipaksa portrait sesuai standar surat pemerintah |
-| Zero-Setup Execution | Double-click `.exe` langsung berjalan, tanpa instalasi tambahan |
+| Fitur                   | Keterangan                                                      |
+| ----------------------- | --------------------------------------------------------------- |
+| Manajemen Data Media    | Input, edit, hapus data media Cetak / Elektronik / Siber        |
+| Kalkulasi Skor Otomatis | Skor dihitung real-time dari kriteria yang dikonfigurasi        |
+| Grade Determination     | Grade ditetapkan otomatis dari threshold yang eksplisit         |
+| Form Dinamis            | Form penilaian beradaptasi sesuai jenis media yang dipilih      |
+| PDF Detail Verifikasi   | Laporan individual sesuai format DOCX resmi Kominfo             |
+| PDF Rekapitulasi        | Dokumen "Persetujuan Tim Verifikator" semua media sekaligus     |
+| PDF Preview System      | Pratinjau dalam aplikasi, download hanya jika diinginkan        |
+| Signature Bottom Anchor | Tanda tangan selalu menempel di bawah halaman terakhir          |
+| Pagination Engine       | Page break otomatis + reserved signature zone (80mm)            |
+| Portrait-Only Mode      | Semua dokumen dipaksa portrait sesuai standar surat pemerintah  |
+| Zero-Setup Execution    | Double-click `.exe` langsung berjalan, tanpa instalasi tambahan |
 
 ---
 
 ## Tech Stack
 
-| Teknologi | Versi | Fungsi |
-|---|---|---|
-| [Electron](https://electronjs.org) | 39 | Desktop application shell |
-| [React](https://react.dev) | 19 | UI framework (renderer process) |
-| [electron-vite](https://electron-vite.org) | 5 | Build tool & dev server |
-| [Tailwind CSS](https://tailwindcss.com) | 4 | Styling |
-| [jsPDF](https://github.com/parallax/jsPDF) | 4 | PDF document generation |
-| [jspdf-autotable](https://github.com/simonbengtsson/jsPDF-AutoTable) | 5 | Table rendering dalam PDF |
-| [MongoDB](https://mongodb.com) | 7 (driver) | Cloud database via Atlas |
-| [React Router](https://reactrouter.com) | 7 | Client-side routing |
-| [lucide-react](https://lucide.dev) | latest | Icon library |
-| [Node.js](https://nodejs.org) | ≥ 18 LTS | Runtime (main process) |
-| [electron-builder](https://www.electron.build) | 26 | Production packaging |
+| Teknologi                                                            | Versi      | Fungsi                          |
+| -------------------------------------------------------------------- | ---------- | ------------------------------- |
+| [Electron](https://electronjs.org)                                   | 39         | Desktop application shell       |
+| [React](https://react.dev)                                           | 19         | UI framework (renderer process) |
+| [electron-vite](https://electron-vite.org)                           | 5          | Build tool & dev server         |
+| [Tailwind CSS](https://tailwindcss.com)                              | 4          | Styling                         |
+| [jsPDF](https://github.com/parallax/jsPDF)                           | 4          | PDF document generation         |
+| [jspdf-autotable](https://github.com/simonbengtsson/jsPDF-AutoTable) | 5          | Table rendering dalam PDF       |
+| [MongoDB](https://mongodb.com)                                       | 7 (driver) | Cloud database via Atlas        |
+| [React Router](https://reactrouter.com)                              | 7          | Client-side routing             |
+| [lucide-react](https://lucide.dev)                                   | latest     | Icon library                    |
+| [Node.js](https://nodejs.org)                                        | ≥ 18 LTS   | Runtime (main process)          |
+| [electron-builder](https://www.electron.build)                       | 26         | Production packaging            |
 
 ---
 
@@ -71,12 +99,12 @@ Sistem ini mendigitalisasi seluruh alur penilaian:
 
 ### Development
 
-| Requirement | Versi Minimum |
-|---|---|
-| Node.js | **18.x LTS** |
-| npm | 9+ |
-| OS | Windows 10+, macOS 12+, Ubuntu 20.04+ |
-| MongoDB | Atlas cluster aktif |
+| Requirement | Versi Minimum                         |
+| ----------- | ------------------------------------- |
+| Node.js     | **18.x LTS**                          |
+| npm         | 9+                                    |
+| OS          | Windows 10+, macOS 12+, Ubuntu 20.04+ |
+| MongoDB     | Atlas cluster aktif                   |
 
 ### End User (Production)
 
@@ -119,13 +147,23 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/media_scor
 
 ### 4. Development
 
+Menjalankan environment development dengan Hot Reloading Vite:
+
 ```bash
 npm run dev
 ```
 
-Electron window terbuka otomatis dengan Hot Reload aktif.
+### 5. Build
 
-### 5. Build Production
+Perintah build dasar akan melakukan kompilasi dari kode React (renderer) dan Electron (main):
+
+```bash
+npm run build
+```
+
+### 6. Packaging
+
+Untuk membuat installer yang siap didistribusikan, jalankan perintah berikut:
 
 ```bash
 # Windows installer (.exe)
@@ -138,16 +176,22 @@ npm run build:mac
 npm run build:linux
 ```
 
-Output tersimpan di `dist/`.
+Output tersimpan di dalam folder `dist/`.
+
+### 7. Cara Menjalankan Hasil Build
+
+Navigasikan ke folder `dist/` (setelah proses _packaging_ selesai), cari file yang berekstensi `.exe` (untuk Windows), kemudian lakukan instalasi atau jalankan aplikasinya secara langsung. Tidak dibutuhkan langkah pra-syarat tambahan.
+
+---
 
 ### Troubleshooting
 
-| Masalah | Solusi |
-|---|---|
-| `MongoServerError: bad auth` | Periksa `MONGODB_URI` di `.env` |
-| `ERR_ELECTRON_BUILDER_NOT_INSTALLED` | Jalankan `npm install` ulang |
-| Blank screen saat dev | Tunggu Vite dev server siap, reload dengan `Ctrl+R` |
-| PDF tidak muncul di preview | Pastikan browser/Electron mendukung `<embed type="application/pdf">` |
+| Masalah                              | Solusi                                                               |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| `MongoServerError: bad auth`         | Periksa `MONGODB_URI` di `.env`                                      |
+| `ERR_ELECTRON_BUILDER_NOT_INSTALLED` | Jalankan `npm install` ulang                                         |
+| Blank screen saat dev                | Tunggu Vite dev server siap, reload dengan `Ctrl+R`                  |
+| PDF tidak muncul di preview          | Pastikan browser/Electron mendukung `<embed type="application/pdf">` |
 
 ---
 
@@ -315,13 +359,13 @@ Blok tanda tangan selalu menempel di batas bawah halaman terakhir via `pushToBot
 
 ### PDF Preview Contract
 
-| Langkah | Perilaku |
-|---|---|
-| User klik Export | Generate PDF di memory (tidak ada file ditulis) |
-| Blob URL dibuat | `URL.createObjectURL(blob)` — non-blocking |
-| Preview terbuka | `<embed type="application/pdf">` di React Modal |
-| Download | `doc.save(filename)` hanya jika user klik tombol |
-| Close | `URL.revokeObjectURL(blobUrl)` → state direset → Dashboard utuh |
+| Langkah          | Perilaku                                                        |
+| ---------------- | --------------------------------------------------------------- |
+| User klik Export | Generate PDF di memory (tidak ada file ditulis)                 |
+| Blob URL dibuat  | `URL.createObjectURL(blob)` — non-blocking                      |
+| Preview terbuka  | `<embed type="application/pdf">` di React Modal                 |
+| Download         | `doc.save(filename)` hanya jika user klik tombol                |
+| Close            | `URL.revokeObjectURL(blobUrl)` → state direset → Dashboard utuh |
 
 ---
 
@@ -360,46 +404,54 @@ export default {
 
 ## Separation of Concerns
 
-| Layer | Tanggung Jawab | Tidak Boleh Ada |
-|---|---|---|
-| `ReportBuilder` | Normalisasi & mapping data, kalkulasi skor | Layout, PDF drawing |
-| `Template Layer` | Urutan section dalam dokumen | Scoring, DB query |
-| `PdfDocumentBuilder` | Drawing primitif (teks, tabel, tanda tangan) | Business logic |
-| `PdfExportService` | Orchestration: pilih template → builder | Scoring, drawing |
-| `React UI` | Input data, trigger export, preview | PDF generation logic |
-| `Main Process` | Database CRUD via IPC | UI, PDF |
+| Layer                | Tanggung Jawab                               | Tidak Boleh Ada      |
+| -------------------- | -------------------------------------------- | -------------------- |
+| `ReportBuilder`      | Normalisasi & mapping data, kalkulasi skor   | Layout, PDF drawing  |
+| `Template Layer`     | Urutan section dalam dokumen                 | Scoring, DB query    |
+| `PdfDocumentBuilder` | Drawing primitif (teks, tabel, tanda tangan) | Business logic       |
+| `PdfExportService`   | Orchestration: pilih template → builder      | Scoring, drawing     |
+| `React UI`           | Input data, trigger export, preview          | PDF generation logic |
+| `Main Process`       | Database CRUD via IPC                        | UI, PDF              |
 
 ---
 
-## Pengembangan Lanjutan
+## Roadmap
 
-| Fitur | Keterangan |
-|---|---|
-| Dynamic Settings UI | Form untuk ubah `documentSettings` tanpa edit kode |
-| Multi-Template Engine | Plugin-style template untuk jenis media baru |
-| Batch Export | Export semua laporan dalam satu ZIP |
-| Watermark / Stamp | Cap "RAHASIA" atau "SALINAN" pada dokumen |
-| Audit Log | Riwayat perubahan data per media + timestamp |
-| Role-based Access | Pembatasan akses berdasarkan role pengguna |
-| Offline Fallback | Cache lokal saat koneksi Atlas tidak tersedia |
+Aplikasi saat ini sudah mencapai tahapan **Release Candidate (RC)**. Pengembangan lanjutan akan berfokus pada fitur berikut:
+
+- [ ] Dynamic Settings UI (konfigurasi nama instansi dan pejabat secara _on-the-fly_)
+- [ ] Multi-Template Engine untuk jenis media baru
+- [ ] Fitur Batch Export laporan
+- [ ] Sistem Audit Log untuk riwayat perubahan data
+- [ ] Manajemen Role (Admin, Verifikator, Pimpinan)
+- [ ] Mode _offline fallback_ ketika MongoDB tidak dapat diakses
 
 ---
 
 ## Kontribusi
 
-1. Fork repositori ini.
-2. Buat branch: `git checkout -b feat/nama-fitur`
-3. Commit: `git commit -m "feat: tambah fitur X"`
-4. Push: `git push origin feat/nama-fitur`
-5. Buat Pull Request ke `main`.
+Kami sangat menghargai kontribusi dalam bentuk pull requests, laporan bug, atau saran fitur.
 
-> Scoring dan grading logic mengikuti aturan baku Kominfo. Perubahan pada logika penilaian harus didiskusikan terlebih dahulu.
+1. Fork repositori ini.
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buka Pull Request
+
+> **Catatan:** Logika penilaian dan gradasi merujuk pada aturan baku Dinas Kominfo. Perubahan terhadap aturan _scoring_ wajib didiskusikan dan disetujui terlebih dahulu.
 
 ---
 
-## Lisensi
+## License
 
-Didistribusikan di bawah [MIT License](LICENSE).
+Didistribusikan di bawah Lisensi MIT. Lihat file `LICENSE` untuk informasi lebih lanjut.
+
+---
+
+## Acknowledgements
+
+- **Dinas Komunikasi dan Informatika Kota Kendari** atas dukungan operasional.
+- Seluruh tim _open source_ di balik [Electron](https://electronjs.org), [React](https://react.dev), dan ekosistem modern web development.
 
 ---
 

@@ -1,7 +1,15 @@
 import { Download, X } from 'lucide-react'
 
-export default function PdfPreviewModal({ isOpen, onClose, blobUrl, filename, onDownload }) {
-  if (!isOpen || !blobUrl) return null
+export default function PdfPreviewModal({
+  isOpen,
+  onClose,
+  blobUrl,
+  isHtml,
+  htmlContent,
+  filename,
+  onDownload
+}) {
+  if (!isOpen || (!blobUrl && !isHtml)) return null
 
   const handleDownload = () => {
     onDownload(filename)
@@ -34,12 +42,21 @@ export default function PdfPreviewModal({ isOpen, onClose, blobUrl, filename, on
       </div>
 
       {/* Preview Area */}
-      <div className="flex-1 w-full h-full bg-slate-800 p-4 md:p-8 overflow-hidden flex justify-center">
-        <embed
-          src={blobUrl}
-          type="application/pdf"
-          className="w-full h-full max-w-5xl bg-white shadow-2xl rounded"
-        />
+      <div className="flex-1 w-full h-full bg-slate-800 p-4 md:p-8 overflow-hidden flex justify-center items-start">
+        {isHtml ? (
+          <iframe
+            srcDoc={htmlContent}
+            className="w-full max-w-4xl aspect-[1/1.414] max-h-full bg-white shadow-2xl rounded"
+            title="PDF Preview"
+            style={{ border: 'none' }}
+          />
+        ) : (
+          <embed
+            src={`${blobUrl}#view=FitH`}
+            type="application/pdf"
+            className="w-full max-w-4xl aspect-[1/1.414] max-h-full bg-white shadow-2xl rounded"
+          />
+        )}
       </div>
     </div>
   )

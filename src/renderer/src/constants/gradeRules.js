@@ -1,15 +1,31 @@
 /**
- * Placeholder configuration for demonstration purposes and future customization.
- * These are demonstration values only; the official assessment rules from
- * Dinas Kominfo have not been finalized yet.
+ * Official Assessment Grade Rules Configuration
  *
- * If enabled is set to false, grading features will be dynamically disabled
- * across the application, saving 'grade: null' to the database and hiding
- * grade badges in the UI.
+ * Sourced directly from PERWALI Kota Kendari Nomor 36 Tahun 2023.
+ * All wording, typos, and formatting match the official forms exactly.
  */
 export const gradeRules = {
-  enabled: false,
-  thresholds: []
+  enabled: true,
+  rules: {
+    CETAK: [
+      { minScore: 101, grade: 'Tingkat I' },
+      { minScore: 81, grade: 'Tingkat II' },
+      { minScore: 61, grade: 'Tingkat III' },
+      { minScore: 0, grade: 'Tingkat IV' }
+    ],
+    SIBER: [
+      { minScore: 101, grade: 'Tingkat I' },
+      { minScore: 81, grade: 'Tingkat II' },
+      { minScore: 61, grade: 'Tingkat III' },
+      { minScore: 0, grade: 'Tingkat IV' }
+    ],
+    ELEKTRONIK: [
+      { minScore: 21, grade: 'Tingkat I' },
+      { minScore: 17, grade: 'Tingkat II' },
+      { minScore: 13, grade: 'Tingkat III' },
+      { minScore: 0, grade: 'Tingkat IV' }
+    ]
+  }
 }
 
 export default gradeRules

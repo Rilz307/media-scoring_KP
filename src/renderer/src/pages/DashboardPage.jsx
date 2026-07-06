@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Search, Plus, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Search, Plus, FileText, AlertTriangle, CheckCircle2, Printer } from 'lucide-react'
 import MediaService from '../services/MediaService'
 import ConfirmDialog from '../components/ui/ConfirmDialog'
 import PdfPreviewModal from '../components/ui/PdfPreviewModal'
@@ -27,7 +27,11 @@ export default function DashboardPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
 
   // Preview modal states
-  const [previewData, setPreviewData] = useState({ isOpen: false, blobUrl: null, filename: '' })
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [previewHtml, setPreviewHtml] = useState(null)
+  const [isPreviewHtml, setIsPreviewHtml] = useState(false)
+  const [previewFilename, setPreviewFilename] = useState('')
 
   const fetchMedia = async () => {
     try {
@@ -220,6 +224,24 @@ export default function DashboardPage() {
     }
   }, [mediaList])
 
+  const handlePreviewRekapitulasi = async () => {
+    if (!sortedMediaList.length) return
+    try {
+      const preview = await PdfExportService.previewRekapitulasi(sortedMediaList)
+      if (preview.isHtml) {
+        setIsPreviewHtml(true)
+        setPreviewHtml(preview.htmlContent)
+      } else {
+        setIsPreviewHtml(false)
+        setPreviewUrl(preview.blobUrl)
+      }
+      setPreviewFilename(preview.filename)
+      setIsPreviewOpen(true)
+    } catch (err) {
+      setToast(err.message || 'Gagal menyiapkan preview rekapitulasi')
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Toast Feedback Alert */}
@@ -240,22 +262,11 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => {
-              try {
-                const preview = PdfExportService.previewRekapitulasi(sortedMediaList)
-                setPreviewData({
-                  isOpen: true,
-                  blobUrl: preview.blobUrl,
-                  filename: preview.filename
-                })
-              } catch (err) {
-                setToast(err.message || 'Gagal menyiapkan preview rekapitulasi')
-              }
-            }}
+            onClick={handlePreviewRekapitulasi}
             className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-white hover:bg-emerald-700 transition shadow-sm font-semibold text-sm"
           >
-            <FileText size={16} />
-            Export Rekap
+            <Printer size={18} />
+            Rekapitulasi Persetujuan
           </button>
           <button
             onClick={() => navigate('/media/new')}
@@ -477,9 +488,15 @@ export default function DashboardPage() {
                     {gradeRules.enabled && media.grade ? (
                       <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold border ${
-                          media.grade === 'A'
+                          ['Tinggat I', 'Tingkat I'].includes(media.grade)
                             ? 'bg-green-50 text-green-700 border-green-200'
-                            : media.grade === 'B'
+                            : [
+                                  'Tinggat II',
+                                  'Tingkat II',
+                                  'Tinggatil',
+                                  'Tingkat III',
+                                  'TingkaT III'
+                                ].includes(media.grade)
                               ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
                               : 'bg-red-50 text-red-700 border-red-200'
                         }`}
@@ -539,12 +556,17 @@ export default function DashboardPage() {
 
       {/* PDF Preview Modal */}
       <PdfPreviewModal
-        isOpen={previewData.isOpen}
-        blobUrl={previewData.blobUrl}
-        filename={previewData.filename}
+        isOpen={isPreviewOpen}
+        blobUrl={previewUrl}
+        isHtml={isPreviewHtml}
+        htmlContent={previewHtml}
+        filename={previewFilename}
         onClose={() => {
-          if (previewData.blobUrl) URL.revokeObjectURL(previewData.blobUrl)
-          setPreviewData({ isOpen: false, blobUrl: null, filename: '' })
+          if (previewUrl) URL.revokeObjectURL(previewUrl)
+          setIsPreviewOpen(false)
+          setPreviewUrl(null)
+          setPreviewHtml(null)
+          setPreviewFilename('')
         }}
         onDownload={() => {
           try {

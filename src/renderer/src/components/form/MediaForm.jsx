@@ -26,7 +26,10 @@ function MediaForm({ initialData = null, onSave, onCancel, loading = false }) {
     const criteriaList = mediaCriteria[form.jenis] || []
     return calculateScore(answers, criteriaList)
   }, [answers, form.jenis])
-  const grade = useMemo(() => calculateGrade(totalScore, gradeRules), [totalScore])
+  const grade = useMemo(() => {
+    if (!gradeRules || !gradeRules.enabled || !gradeRules.rules) return null
+    return calculateGrade(totalScore, gradeRules.rules[form.jenis])
+  }, [totalScore, form.jenis])
 
   // Load initial data for Edit Mode
   useEffect(() => {

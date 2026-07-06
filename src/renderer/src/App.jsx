@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import MainLayout from './layouts/MainLayout'
+import ConnectionGuard from './components/layout/ConnectionGuard'
 
 import DashboardPage from './pages/DashboardPage'
 import MediaFormPage from './pages/MediaFormPage'
@@ -9,21 +10,25 @@ import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
-        <Route element={<MainLayout />}>
-          <Route index element={<DashboardPage />} />
+        <Route element={<ConnectionGuard />}>
+          <Route element={<MainLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
 
-          <Route path="/media/new" element={<MediaFormPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
 
-          <Route path="/media/:id/edit" element={<MediaFormPage />} />
+            <Route path="/media/new" element={<MediaFormPage />} />
 
-          <Route path="/media/:id" element={<MediaDetailPage />} />
+            <Route path="/media/:id/edit" element={<MediaFormPage />} />
+
+            <Route path="/media/:id" element={<MediaDetailPage />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
