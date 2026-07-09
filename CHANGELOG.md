@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This project follows a milestone-based development process.
 
-# [1.0.0] - 2024-XX-XX
+# [1.0.0] - 2026-07-09
+
+## Milestone 9 - Testing & UAT
+
+### Changed
+
+- **Rekapitulasi PDF Grade Integration**: Replaced the hardcoded presentation status ("Memenuhi Syarat" / "Tidak Memenuhi") in the Rekapitulasi PDF table with the actual media grade retrieved from the database, using a dash ("-") as a fallback for records without a grade.
+- **Dynamic Dashboard Grade Filter**: Refactored the dashboard grade filter to compile its options dynamically from the application's configuration (`gradeRules.js`) instead of utilizing hardcoded legacy values ("A", "B", "C"). The options adapt dynamically based on the selected media type filter, resetting automatically if the active grade selection is no longer valid.
 
 ## Milestone 8 - Production Packaging
 
@@ -15,16 +22,20 @@ This project follows a milestone-based development process.
 - **Resource Management**: Bundled necessary assets including application icon (`resources/icon.png`).
 - **Production Build Target**: Finalized Vite and Electron compilation targets for production readiness.
 
-## Milestone 7 - Official Document Generation (Strict Template Engine)
+## Milestone 7 - Official Document Generation (Strict Template Engine & HTML Refactoring)
 
 ### Added
 
-- **PDF Configuration Layer**: Created `src/renderer/src/pdf/constants/pdfConfig.js` holding base typography, margin metrics, and formal government styling configurations.
-- **Presentation Mapping Config**: Implemented `src/renderer/src/pdf/config/pdfTemplateMap.js` to decouple document-specific terminology mappings (e.g., `pdfSubUraian`, `pdfStatus`) from the assessment domain (`mediaCriteria.js`).
-- **Template Mappers**: Added `MediaSiberTemplate.js`, `MediaCetakTemplate.js`, `MediaElektronikTemplate.js`, and `PersetujuanTemplate.js` to translate the canonical `ReportBuilder` object into structural drawing rows.
-- **PDF Document Builder**: Built `PdfDocumentBuilder.js` applying pure drawing APIs (`jspdf`, `jspdf-autotable`) to visually replicate the official DOCX layouts exactly, including dynamic row spanning.
-- **Export Service Orchestrator**: Established `PdfExportService.js` to orchestrate data translation (from `ReportBuilder` through the selected Template Mapper) into PDF generation.
-- **Media Detail UI Integration**: Integrated the "Export PDF" button to trigger official document generation with graceful error handling states.
+- **HTML Template Engine**: Refactored PDF generation to use pure HTML templates (`media-detail.html` and `rekapitulasi.html`) under `src/renderer/src/documents/templates/` for precise replication of official government document layouts.
+- **Presentation ViewModel Layer**: Added `MediaDetailViewModel.js` and `RekapitulasiViewModel.js` under `src/renderer/src/documents/builders/` to translate normalized data into checkmark tables and header items.
+- **Headless PDF Printing IPC**: Registered `pdf:printHtml` IPC handler in `src/main/ipc/pdf.js` to print compiled HTML strings to a PDF buffer using Electron's native `printToPDF()` function.
+- **PDF Configuration Layer**: Created `src/renderer/src/pdf/constants/pdfConfig.js` holding base typography and formal government styling configurations.
+- **Presentation Mapping Config**: Implemented `src/renderer/src/pdf/config/pdfTemplateMap.js` to decouple document-specific terminology mappings from the assessment domain.
+- **Media Detail UI Integration**: Integrated the "Export PDF" button to trigger dynamic HTML preview using an in-app `iframe` and support direct download of the printed PDF.
+
+### Deprecated
+
+- **Legacy jsPDF Engine**: Deprecated `PdfDocumentBuilder.js` and `PersetujuanTemplate.js` inside the `src/renderer/src/pdf` directory in favor of the new HTML-to-PDF native printer.
 
 ## Milestone 6 - Scoring Workflow & Assessment Engine Refinement (Revised)
 
@@ -84,14 +95,16 @@ This project follows a milestone-based development process.
 
 - **Phase A: Backend Foundation**:
   - Sprint 3.0: Created main process project directories (`config/`, `database/`, `repositories/`, `ipc/`).
-  - Sprint 3.1: Installed runtime dependencies `mongodb` and `dotenv`.
-  - Sprint 3.2: Integrated environment loader/validator in `src/main/config/env.js` and created `.env.example`.
-  - Sprint 3.3: Built MongoDB Atlas connection manager in `src/main/database/connection.js` and integrated with app launch/quit lifecycle.
+  - Sprint 3.1: Installed runtime dependencies `mongodb` and `dotenv` (used as baseline development reference).
+  - Sprint 3.2: Created local config repository and config service (`ConfigRepository.js`, `ConfigService.js` under `src/main/config/`) to read/write `config.json` dynamically in `userData` folder, and created `.env.example` as a format guide.
+  - Sprint 3.3: Built MongoDB Atlas connection manager in `src/main/database/connection.js` which loads the URI dynamically from the local config service, and integrated with app launch/quit lifecycle.
   - Sprint 3.4: Designed read-only data access repository `src/main/repositories/MediaRepository.js` (implementing `getAll` and `getById`).
 - **Phase B: IPC and Renderer Integration**:
   - Sprint 3.5: Registered namespaced IPC handlers (`media:getAll` and `media:getById`) in `src/main/ipc/media.js` and exposed them securely in `src/preload/index.js`.
   - Sprint 3.6: Created React-facing service manager `src/renderer/src/services/MediaService.js` to encapsulate IPC window calls.
   - Sprint 3.7: Integrated database data fetching into `DashboardPage.jsx` complete with loading indicators, empty tables, and network failure fallback states.
+  - Sprint 3.8: Implemented `MongoErrorTranslator.js` utility in `src/renderer/src/utils/` to translate MongoDB connection/authentication errors to user-friendly messages.
+  - Sprint 3.9: Implemented dynamic `ConnectionManager` component inside `src/renderer/src/components/startup/` to allow live MongoDB URI setup, testing, and saving config. Exposes `db:*` IPC channels (`db:getConfig`, `db:saveConfig`, `db:testConnection`, etc.) registered in `src/main/ipc/database.js`.
   - Architecture Improvement: Decoupled connection tear-down from the window-level scope to the application-level lifecycle by migrating logic to the `before-quit` event.
 - **UI/UX Refinements (Pre-Milestone 4)**:
   - Part 1: Replaced sidebar with a dark, modern top header navigation panel incorporating NavLink routing for Dashboard and Rekapitulasi. Deleted Sidebar component.

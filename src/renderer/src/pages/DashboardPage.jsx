@@ -143,6 +143,54 @@ export default function DashboardPage() {
     }
   }
 
+  // Dynamically compile available grade options based on selected filterType and gradeRules configuration
+  const gradeOptions = useMemo(() => {
+    if (!gradeRules || !gradeRules.enabled || !gradeRules.rules) {
+      return []
+    }
+
+    if (filterType && filterType !== 'Semua Jenis') {
+      const typeRules = gradeRules.rules[filterType] || []
+      return typeRules.map((r) => r.grade)
+    } else {
+      const allGrades = new Set()
+      Object.keys(gradeRules.rules).forEach((type) => {
+        const typeRules = gradeRules.rules[type] || []
+        typeRules.forEach((r) => {
+          if (r.grade) allGrades.add(r.grade)
+        })
+      })
+      return Array.from(allGrades)
+    }
+  }, [filterType])
+
+  // Handle changes in media type filter, dynamically adjusting active grade options
+  const handleFilterTypeChange = (e) => {
+    const newType = e.target.value
+    setFilterType(newType)
+
+    let newGradeOptions = []
+    if (gradeRules && gradeRules.enabled && gradeRules.rules) {
+      if (newType && newType !== 'Semua Jenis') {
+        const typeRules = gradeRules.rules[newType] || []
+        newGradeOptions = typeRules.map((r) => r.grade)
+      } else {
+        const allGrades = new Set()
+        Object.keys(gradeRules.rules).forEach((type) => {
+          const typeRules = gradeRules.rules[type] || []
+          typeRules.forEach((r) => {
+            if (r.grade) allGrades.add(r.grade)
+          })
+        })
+        newGradeOptions = Array.from(allGrades)
+      }
+    }
+
+    if (filterGrade !== 'Semua Grade' && !newGradeOptions.includes(filterGrade)) {
+      setFilterGrade('Semua Grade')
+    }
+  }
+
   // Filter list locally
   const filteredMediaList = useMemo(() => {
     return mediaList.filter((media) => {
@@ -350,7 +398,7 @@ export default function DashboardPage() {
 
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
+            onChange={handleFilterTypeChange}
             className="rounded-lg border border-slate-200 p-2 text-xs text-slate-700 focus:border-blue-500 focus:outline-none transition bg-white"
           >
             <option>Semua Jenis</option>
@@ -364,10 +412,12 @@ export default function DashboardPage() {
             onChange={(e) => setFilterGrade(e.target.value)}
             className="rounded-lg border border-slate-200 p-2 text-xs text-slate-700 focus:border-blue-500 focus:outline-none transition bg-white"
           >
-            <option>Semua Grade</option>
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
+            <option value="Semua Grade">Semua Grade</option>
+            {gradeOptions.map((grade) => (
+              <option key={grade} value={grade}>
+                {grade}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -385,7 +435,7 @@ export default function DashboardPage() {
             <option value="name_desc">Nama (Z-A)</option>
             <option value="score_highest">Skor Tertinggi</option>
             <option value="score_lowest">Skor Terendah</option>
-            <option value="grade">Grade (A-C)</option>
+            <option value="grade">Grade</option>
           </select>
         </div>
       </div>

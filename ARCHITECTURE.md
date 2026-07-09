@@ -96,44 +96,58 @@ Renderer tidak boleh mengakses Node.js secara langsung.
 # 4. Folder Structure
 
 src/
-
-    main/
-
-        index.js
-
-        ipc/
-
-        database/
-
-        repositories/
-
-    preload/
-
-        index.js
-
-    renderer/
-
-        index.html
-
-        src/
-
-            assets/
-
-            components/
-
-            constants/
-
-            hooks/
-
-            layouts/
-
-            pages/
-
+main/
+index.js
+config/
+ConfigRepository.js
+ConfigService.js
+database/
+connection.js
+ipc/
+database.js
+media.js
+pdf.js
+repositories/
+MediaRepository.js
+preload/
+index.js
+renderer/
+index.html
+src/
+App.jsx
+main.jsx
+assets/
+components/
+dashboard/
+form/
+layout/
+startup/
+ui/
+context/
+ConnectionContext.js
+documents/
+builders/
+renderer/
+templates/
+pages/
+DashboardPage.jsx
+MediaDetailPage.jsx
+MediaFormPage.jsx
+NotFoundPage.jsx
+StartupPage.jsx
+            pdf/
+                config/
+                constants/
+                services/
+                    PdfExportService.js
             services/
-
+                MediaService.js
             styles/
-
             utils/
+                ReportBuilder.js
+                ScoreCalculator.js
+                GradeCalculator.js
+                MongoErrorTranslator.js
 
 ---
 
@@ -394,7 +408,7 @@ Grade Calculator
 
 ↓
 
-Grade
+Grade (for example, predikat such as Tingkat I–IV)
 
 Seluruh perhitungan dilakukan pada utilitas.
 
@@ -464,27 +478,35 @@ Dashboard
 
 # 13. PDF Flow
 
-Dashboard
+Dashboard / Detail Page
 
 ↓
 
-Select Media
+Select Media (Export PDF)
 
 ↓
 
-Report Service
+PdfExportService / MediaDetailViewModel
 
 ↓
 
-PDF Helper
+Kompilasi HTML string dari Template & ViewModel
 
 ↓
 
-jsPDF
+iframe preview (srcDoc) / Klik Download
 
 ↓
 
-Download
+IPC Call (pdf:printHtml)
+
+↓
+
+Main Process (printToPDF)
+
+↓
+
+PDF Buffer dikembalikan & disimpan
 
 ---
 
@@ -494,7 +516,7 @@ Dashboard
 
 ↓
 
-Rekap Button
+Rekap Button (Export Rekapitulasi)
 
 ↓
 
@@ -502,19 +524,27 @@ Load All Media
 
 ↓
 
-Generate Table
+PdfExportService / RekapitulasiViewModel
 
 ↓
 
-Official Template
+Kompilasi HTML string dari Template & ViewModel
 
 ↓
 
-PDF
+iframe preview (srcDoc) / Klik Download
 
 ↓
 
-Download
+IPC Call (pdf:printHtml)
+
+↓
+
+Main Process (printToPDF)
+
+↓
+
+PDF Buffer dikembalikan & disimpan
 
 ---
 
@@ -608,12 +638,14 @@ Responsibilities
 - search()
 - filter()
 
-ReportService
+PdfExportService
 
 Responsibilities
 
-- exportDetail()
-- exportRekap()
+- previewMediaReport()
+- downloadMediaReport()
+- previewRekapitulasi()
+- downloadRekapitulasi()
 
 ---
 
@@ -647,15 +679,19 @@ Tidak boleh ada UI.
 
 ScoreCalculator
 
-Menghitung total skor.
+Menghitung total skor & subtotal section.
 
 GradeCalculator
 
 Menentukan grade.
 
-PDFHelper
+ReportBuilder
 
-Utility PDF.
+Normalisasi objek data MongoDB untuk presentasi UI & dokumen.
+
+MongoErrorTranslator
+
+Menerjemahkan pesan error MongoDB dan jaringan menjadi pesan ramah pengguna dalam Bahasa Indonesia.
 
 ---
 
@@ -667,9 +703,7 @@ Berisi seluruh kriteria media.
 
 gradeRules.js
 
-Berisi aturan grade.
-
-Komponen React tidak boleh melakukan hardcode.
+Berisi aturan grade, threshold skor yang dikonfigurasi, dan label predikat (misalnya Tingkat I–IV). Berkas `gradeRules.js` adalah single source of truth untuk penentuan grade, sehingga komponen React tidak boleh melakukan hardcode.
 
 ---
 
@@ -709,13 +743,17 @@ MongoDB Atlas
 
 Official mongodb Driver
 
+Local Config
+
+ConfigService & ConfigRepository (menyimpan config.json di userData)
+
 Packaging
 
 Electron Builder
 
 PDF
 
-jsPDF
+Electron Native printToPDF() (HTML-to-PDF)
 
 Environment
 
@@ -823,37 +861,11 @@ Production Build (Configuration)
 
 Milestone 9
 Testing & UAT
-⚪ Pending
+🟡 In Progress (Release Candidate stage)
 
 Milestone 10
 Production Release
-⚪ Pending
-
-Milestone 3
-
-MongoDB Integration
-
-🟡 Current
-
-Milestone 4
-
-CRUD
-
-Milestone 5
-
-Dynamic Form
-
-Milestone 6
-
-Scoring Engine
-
-Milestone 7
-
-PDF
-
-Milestone 8
-
-Production Build
+🟢 Implemented (Configuration ready, final compilation pending UAT sign-off)
 
 ---
 

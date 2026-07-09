@@ -16,11 +16,11 @@ Current Version
 
 Current Milestone
 
-Milestone 9 (Testing & UAT) - Pending
+Milestone 9 (Testing & UAT) - Active (Release Candidate stage)
 
 Project Progress
 
-Feature Complete (~90%)
+Feature Complete (Release Candidate ready)
 
 ---
 
@@ -222,15 +222,13 @@ Routing
 
 Status
 
-🟡 In Progress
+✅ Completed
 
 Tasks
 
 [x] React Router
 
 [x] MainLayout
-
-[x] Sidebar
 
 [x] Topbar
 
@@ -246,11 +244,11 @@ Dashboard UI
 
 Status
 
-Not Started
+✅ Completed
 
 Tasks
 
-[ ] Statistics Cards
+[x] Statistics Cards
 
 [x] Search Bar
 
@@ -272,21 +270,21 @@ Reusable Components
 
 Status
 
-Not Started
+✅ Completed
 
 Tasks
 
-[ ] Button
+[x] Button
 
-[ ] Card
+[x] Card
 
-[ ] Modal
+[x] Modal
 
-[ ] Badge
+[x] Badge
 
-[ ] Loading
+[x] Loading
 
-[ ] Empty Data
+[x] Empty Data
 
 Definition of Done
 
@@ -624,12 +622,12 @@ Generated PDF matches official document.
 
 ===========================================================
 MILESTONE 9
-TESTING
+TESTING & UAT
 ===========================================================
 
 STATUS
 
-⚪ PENDING
+🟡 IN PROGRESS (Release Candidate validation stage)
 
 Tasks
 
@@ -674,7 +672,7 @@ PRODUCTION BUILD
 
 STATUS
 
-⚪ PENDING
+🟢 IMPLEMENTED (Configuration ready, final compilation pending UAT sign-off)
 
 Tasks
 
@@ -790,7 +788,7 @@ MediaService
 
 [x] filter
 
-ReportService
+PdfExportService (Implemented under src/renderer/src/pdf/services/)
 
 [x] detail
 
@@ -798,17 +796,17 @@ ReportService
 
 ---
 
-# Planned Utilities
+# Utilities Implemented
 
-ScoreCalculator
+[x] ScoreCalculator (computes scores)
 
-GradeCalculator
+[x] GradeCalculator (determines grades)
 
-PDFHelper
+[x] ReportBuilder (normalizes raw data for presentation)
 
-ValidationHelper
+[x] MongoErrorTranslator (translates database/network errors)
 
-DateHelper
+(Note: PDFHelper, ValidationHelper, and DateHelper were bypassed or replaced by inline/native operations).
 
 ---
 
@@ -862,37 +860,25 @@ settings
 
 Sprint Goal
 
-Complete MongoDB Atlas Integration
+Testing & UAT Preparation
 
 Current Tasks
 
 1.
 
-Install mongodb
+Lakukan pengujian manual awal untuk alur CRUD & dynamic forms
 
 ↓
 
 2.
 
-Create MongoDB Connection
+Validasi hasil ekspor HTML-to-PDF terhadap format dokumen pemerintah
 
 ↓
 
 3.
 
-Create Repository Layer
-
-↓
-
-4.
-
-Create IPC Handlers
-
-↓
-
-5.
-
-Connect Dashboard to MongoDB
+Selaraskan seluruh dokumentasi Markdown (.md) dengan kode aktual
 
 ---
 

@@ -28,7 +28,7 @@ export default class RekapitulasiViewModel {
               <td>${m.perusahaan || ''}</td>
               <td>${m.alamat || ''}</td>
               <td class="text-center">${m.totalScore || 0} Poin</td>
-              <td class="text-center">${m.grade ? 'Memenuhi Syarat' : 'Tidak Memenuhi'}</td>
+              <td class="text-center">${m.grade || '-'}</td>
             </tr>
           `
         })

@@ -30,8 +30,6 @@ Aplikasi saat ini berada pada tahap **Release Candidate (RC)**.
 ### Known Limitations
 
 - Layout PDF Rekapitulasi belum sepenuhnya identik dengan template DOCX.
-- Rendering PDF bergantung pada kemampuan jsPDF, sehingga _line wrapping_ dapat sedikit berbeda jika dibandingkan dengan Microsoft Word.
-- Pengaturan koneksi MongoDB masih menggunakan _environment configuration_ (belum tersedia UI untuk mengubah database URL di dalam aplikasi).
 - Belum terdapat mekanisme _auto-update_ aplikasi.
 - Belum dilakukan UAT (User Acceptance Testing) pada lingkungan komputer pengguna akhir secara meluas.
 
@@ -65,10 +63,10 @@ _(Belum ada tangkapan layar yang ditambahkan. Anda dapat menambahkan *screenshot
 | ----------------------- | --------------------------------------------------------------- |
 | Manajemen Data Media    | Input, edit, hapus data media Cetak / Elektronik / Siber        |
 | Kalkulasi Skor Otomatis | Skor dihitung real-time dari kriteria yang dikonfigurasi        |
-| Grade Determination     | Grade ditetapkan otomatis dari threshold yang eksplisit         |
+| Grade Determination     | Grade ditetapkan otomatis dari threshold skor yang dikonfigurasi dan label predikat (misalnya Tingkat I–IV) |
 | Form Dinamis            | Form penilaian beradaptasi sesuai jenis media yang dipilih      |
 | PDF Detail Verifikasi   | Laporan individual sesuai format DOCX resmi Kominfo             |
-| PDF Rekapitulasi        | Dokumen "Persetujuan Tim Verifikator" semua media sekaligus     |
+| PDF Rekapitulasi        | Dokumen "Persetujuan Tim Verifikator" semua media sekaligus yang menampilkan predikat grade aktual masing-masing media |
 | PDF Preview System      | Pratinjau dalam aplikasi, download hanya jika diinginkan        |
 | Signature Bottom Anchor | Tanda tangan selalu menempel di bawah halaman terakhir          |
 | Pagination Engine       | Page break otomatis + reserved signature zone (80mm)            |
@@ -79,19 +77,18 @@ _(Belum ada tangkapan layar yang ditambahkan. Anda dapat menambahkan *screenshot
 
 ## Tech Stack
 
-| Teknologi                                                            | Versi      | Fungsi                          |
-| -------------------------------------------------------------------- | ---------- | ------------------------------- |
-| [Electron](https://electronjs.org)                                   | 39         | Desktop application shell       |
-| [React](https://react.dev)                                           | 19         | UI framework (renderer process) |
-| [electron-vite](https://electron-vite.org)                           | 5          | Build tool & dev server         |
-| [Tailwind CSS](https://tailwindcss.com)                              | 4          | Styling                         |
-| [jsPDF](https://github.com/parallax/jsPDF)                           | 4          | PDF document generation         |
-| [jspdf-autotable](https://github.com/simonbengtsson/jsPDF-AutoTable) | 5          | Table rendering dalam PDF       |
-| [MongoDB](https://mongodb.com)                                       | 7 (driver) | Cloud database via Atlas        |
-| [React Router](https://reactrouter.com)                              | 7          | Client-side routing             |
-| [lucide-react](https://lucide.dev)                                   | latest     | Icon library                    |
-| [Node.js](https://nodejs.org)                                        | ≥ 18 LTS   | Runtime (main process)          |
-| [electron-builder](https://www.electron.build)                       | 26         | Production packaging            |
+| Teknologi                                                                                                | Versi      | Fungsi                          |
+| -------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------- |
+| [Electron](https://electronjs.org)                                                                       | 39         | Desktop application shell       |
+| [React](https://react.dev)                                                                               | 19         | UI framework (renderer process) |
+| [electron-vite](https://electron-vite.org)                                                               | 5          | Build tool & dev server         |
+| [Tailwind CSS](https://tailwindcss.com)                                                                  | 4          | Styling                         |
+| [Electron PrintToPDF](https://www.electronjs.org/docs/latest/api/web-contents#contentsprinttopdfoptions) | Native     | Headless HTML-to-PDF generation |
+| [MongoDB](https://mongodb.com)                                                                           | 7 (driver) | Cloud database via Atlas        |
+| [React Router](https://reactrouter.com)                                                                  | 7          | Client-side routing             |
+| [lucide-react](https://lucide.dev)                                                                       | latest     | Icon library                    |
+| [Node.js](https://nodejs.org)                                                                            | ≥ 18 LTS   | Runtime (main process)          |
+| [electron-builder](https://www.electron.build)                                                           | 26         | Production packaging            |
 
 ---
 
@@ -129,21 +126,15 @@ npm install
 
 > Jika menggunakan Windows dan terjadi error saat `postinstall` (native modules), jalankan sebagai Administrator atau pastikan `windows-build-tools` terpasang.
 
-### 3. Konfigurasi Environment
+### 3. Konfigurasi Database (Dynamic In-App Setup)
 
-Salin `.env.example` menjadi `.env` dan isi connection string MongoDB Atlas:
+Aplikasi ini menggunakan **Dynamic In-App Configuration Settings**. Anda tidak wajib mengonfigurasi file `.env` di lingkungan produksi maupun pengembangan. 
 
-```bash
-cp .env.example .env
-```
+Pada startup pertama kali, aplikasi akan mendeteksi status koneksi database. Jika belum dikonfigurasi, Anda akan diarahkan secara otomatis ke halaman **Startup / Connection Manager** untuk memasukkan MongoDB Atlas Connection URI Anda melalui GUI.
 
-Isi file `.env`:
+Konfigurasi ini disimpan secara otomatis dalam file `config.json` pada folder data pengguna (`userData`).
 
-```env
-MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/media_scoring?retryWrites=true&w=majority
-```
-
-> **Penting:** Jangan commit file `.env`. File ini sudah masuk `.gitignore`.
+Untuk lingkungan pengembangan (development) atau sebagai acuan baseline, Anda dapat membuat file `.env` dari `.env.example` sebagai referensi format URI.
 
 ### 4. Development
 
@@ -232,9 +223,14 @@ Navigasikan ke folder `dist/` (setelah proses _packaging_ selesai), cari file ya
 media-scoring-system/
 ├── src/
 │   ├── main/                          # Electron Main Process (Node.js)
-│   │   ├── config/env.js              # Environment variable loader
+│   │   ├── config/
+│   │   │   ├── ConfigRepository.js    # Local JSON config reader/writer
+│   │   │   └── ConfigService.js       # App configuration manager
 │   │   ├── database/connection.js     # MongoDB Atlas connection pool
-│   │   ├── ipc/media.js               # IPC channel handlers (CRUD)
+│   │   ├── ipc/
+│   │   │   ├── database.js            # DB settings IPC listeners
+│   │   │   ├── media.js               # CRUD IPC channel handlers
+│   │   │   └── pdf.js                 # Headless HTML-to-PDF printing IPC
 │   │   ├── repositories/
 │   │   │   └── MediaRepository.js     # MongoDB query layer
 │   │   └── index.js                   # Electron app entry point
@@ -249,7 +245,11 @@ media-scoring-system/
 │       │   ├── DashboardPage.jsx      # Main page: media table + actions
 │       │   ├── MediaDetailPage.jsx    # Detail view + PDF export
 │       │   ├── MediaFormPage.jsx      # Add / edit media form
-│       │   └── NotFoundPage.jsx       # 404 fallback
+│       │   ├── NotFoundPage.jsx       # 404 fallback
+│       │   └── StartupPage.jsx        # DB status indicator / setup fallback
+│       │
+│       ├── context/
+│       │   └── ConnectionContext.js   # DB connection React Context
 │       │
 │       ├── components/
 │       │   ├── dashboard/             # Dashboard-specific components
@@ -258,7 +258,8 @@ media-scoring-system/
 │       │   │   ├── GradeBadge.jsx
 │       │   │   ├── MediaTable.jsx
 │       │   │   ├── ScoreBadge.jsx
-│       │   │   └── SearchBar.jsx
+│       │   │   ├── SearchBar.jsx
+│       │   │   └── SearchFilter.jsx
 │       │   ├── form/                  # Dynamic scoring form components
 │       │   │   ├── CriteriaCard.jsx
 │       │   │   ├── DynamicForm.jsx
@@ -266,38 +267,42 @@ media-scoring-system/
 │       │   │   ├── RadioGroup.jsx
 │       │   │   └── ScoreSummary.jsx
 │       │   ├── layout/
+│       │   │   ├── ConnectionGuard.jsx  # Route gate for DB connection status
 │       │   │   └── Topbar.jsx
+│       │   ├── startup/
+│       │   │   └── ConnectionManager.jsx # On-the-fly database settings form
 │       │   └── ui/                    # Reusable primitives
 │       │       ├── Badge.jsx
 │       │       ├── Button.jsx
 │       │       ├── Card.jsx
 │       │       ├── ConfirmDialog.jsx
 │       │       ├── Input.jsx
-│       │       ├── PdfPreviewModal.jsx  ← In-app PDF preview modal
+│       │       ├── PdfPreviewModal.jsx  # In-app HTML preview modal (iframe)
 │       │       ├── Select.jsx
 │       │       └── Table.jsx
 │       │
-│       ├── pdf/                       # ── PDF Generation System ──
+│       ├── documents/                 # ── PDF HTML-to-PDF Engine ──
 │       │   ├── builders/
-│       │   │   └── PdfDocumentBuilder.js   # Layout engine (drawing primitives)
-│       │   ├── templates/
-│       │   │   ├── MediaSiberTemplate.js   # Siber/online document composer
-│       │   │   ├── MediaCetakTemplate.js   # Cetak document composer
-│       │   │   ├── MediaElektronikTemplate.js
-│       │   │   └── PersetujuanTemplate.js  # Rekapitulasi composer
-│       │   ├── services/
-│       │   │   └── PdfExportService.js     # Orchestration (no logic here)
-│       │   ├── constants/
-│       │   │   └── pdfConfig.js            # Font, size, color, margin constants
-│       │   ├── config/
-│       │   │   └── pdfTemplateMap.js       # Presentation mapping for CETAK layout
-│       │   └── fonts/
-│       │       └── BookmanOldStyle.js      # Embedded Bookman font (base64 VFS)
+│       │   │   ├── MediaDetailViewModel.js  # Prepares media detail presentation data
+│       │   │   └── RekapitulasiViewModel.js # Prepares print summary list data
+│       │   ├── renderer/
+│       │   │   └── HtmlPdfRenderer.js  # Injects data to HTML & handles print IPC
+│       │   └── templates/
+│       │       ├── media-detail.html   # HTML layout for single assessment sheet
+│       │       └── rekapitulasi.html   # HTML layout for summary sheet
 │       │
-│       ├── utils/
+│       ├── pdf/                       # ── PDF Configuration Layer ──
+│       │   ├── services/
+│       │   │   └── PdfExportService.js     # Orchestration (no layout logic)
+│       │   ├── constants/
+│       │   │   └── pdfConfig.js            # Base typography & symbol config
+│       │   └── config/
+│       │       └── pdfTemplateMap.js       # Presentation mapping for CETAK layout
+│       │
 │       │   ├── ReportBuilder.js       # Data normalization — Single Source of Truth
 │       │   ├── ScoreCalculator.js     # Score computation per criteria
-│       │   └── GradeCalculator.js     # Grade determination from total score
+│       │   ├── GradeCalculator.js     # Grade determination from total score
+│       │   └── MongoErrorTranslator.js # Translate database errors to user-friendly messages
 │       │
 │       ├── constants/
 │       │   ├── mediaCriteria.js       # Criteria definitions per media type
@@ -336,36 +341,24 @@ media-scoring-system/
 
 ### Portrait-Only Rule
 
-Semua dokumen PDF menggunakan orientasi **portrait**. Landscape tidak diizinkan dalam kondisi apapun.
+Semua dokumen PDF menggunakan orientasi **portrait**. Landscape tidak diizinkan dalam kondisi apapun. Ini dikontrol via CSS di dalam file template menggunakan aturan `@page { size: F4 portrait; }` atau `size: Legal portrait;`.
 
-### Cursor Flow System
+### CSS Page-Break Handling
 
-Semua konten dokumen mengikuti `cursorY` (flow atas-ke-bawah). Setiap fungsi drawing wajib:
+Tabel dan baris tabel diatur menggunakan CSS agar menghindari pemisahan baris di tengah-tengah halaman secara buruk (`page-break-inside: avoid;`).
 
-1. Memanggil `ensureSpace(height)` sebelum render.
-2. Memperbarui `cursorY` setelah render selesai.
+### Signature Placement
 
-### Reserved Signature Zone
+Tanda tangan diposisikan secara teratur di bawah dokumen cetak menggunakan flexbox layouting dan margin atas yang disesuaikan dalam HTML template.
 
-Sistem mempertahankan zona cadangan **80mm** (`SIGNATURE_RESERVED_HEIGHT`) dari batas bawah setiap halaman. Tabel dikonfigurasi dengan `margin.bottom` yang diperbesar sehingga tidak dapat masuk ke zona ini.
+### PDF Preview & Download Contract
 
-### Signature Bottom Anchor
-
-Blok tanda tangan selalu menempel di batas bawah halaman terakhir via `pushToBottom()`:
-
-- Simulasi `splitTextToSize` sebelum render → tinggi eksak dihitung.
-- `cursorY` dianchor dari bawah: `pageBottom − totalSignatureHeight`.
-- Halaman baru dibuat otomatis jika konten sebelumnya tidak memberi cukup ruang.
-
-### PDF Preview Contract
-
-| Langkah          | Perilaku                                                        |
-| ---------------- | --------------------------------------------------------------- |
-| User klik Export | Generate PDF di memory (tidak ada file ditulis)                 |
-| Blob URL dibuat  | `URL.createObjectURL(blob)` — non-blocking                      |
-| Preview terbuka  | `<embed type="application/pdf">` di React Modal                 |
-| Download         | `doc.save(filename)` hanya jika user klik tombol                |
-| Close            | `URL.revokeObjectURL(blobUrl)` → state direset → Dashboard utuh |
+| Langkah          | Perilaku                                                                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| User klik Export | ViewModel memetakan record data media ke representasi HTML                                                                                               |
+| Render HTML      | Penggabungan data ViewModel ke template HTML (`media-detail.html` atau `rekapitulasi.html`)                                                              |
+| Preview terbuka  | String HTML dimuat ke dalam `iframe` dengan attribute `srcDoc` secara cepat dan aman                                                                     |
+| Download         | Mengirim string HTML ke Main Process via IPC handler `pdf:printHtml` yang memicu browser window tersembunyi untuk memanggil `printToPDF()` secara native |
 
 ---
 
@@ -404,14 +397,15 @@ export default {
 
 ## Separation of Concerns
 
-| Layer                | Tanggung Jawab                               | Tidak Boleh Ada      |
-| -------------------- | -------------------------------------------- | -------------------- |
-| `ReportBuilder`      | Normalisasi & mapping data, kalkulasi skor   | Layout, PDF drawing  |
-| `Template Layer`     | Urutan section dalam dokumen                 | Scoring, DB query    |
-| `PdfDocumentBuilder` | Drawing primitif (teks, tabel, tanda tangan) | Business logic       |
-| `PdfExportService`   | Orchestration: pilih template → builder      | Scoring, drawing     |
-| `React UI`           | Input data, trigger export, preview          | PDF generation logic |
-| `Main Process`       | Database CRUD via IPC                        | UI, PDF              |
+| Layer              | Tanggung Jawab                                      | Tidak Boleh Ada     |
+| ------------------ | --------------------------------------------------- | ------------------- |
+| `ReportBuilder`    | Normalisasi & mapping data, kalkulasi skor          | Layout, HTML markup |
+| `ViewModel`        | Pemetaan data normalized ke format presentasi HTML  | Database query      |
+| `HTML Templates`   | Layout, font styling, dan susunan tabel resmi       | Business logic      |
+| `HtmlPdfRenderer`  | Merender template HTML & trigger print IPC          | Styling, DB query   |
+| `PdfExportService` | Orchestration: panggil builder ViewModel & template | UI Rendering logic  |
+| `React UI`         | Input data, trigger preview (iframe), download      | PDF buffer printing |
+| `Main Process`     | Database CRUD & Native PDF conversion via IPC       | UI, HTML generation |
 
 ---
 

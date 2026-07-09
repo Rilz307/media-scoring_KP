@@ -187,10 +187,10 @@ These principles take precedence whenever implementation decisions are required.
 ====================================================================
 13. PDF RULES
 ====================================================================
-Untuk seluruh modul PDF (jsPDF):
-- jangan mengubah layout DOCX tanpa alasan kuat;
-- hormati ukuran kertas, margin, font, dan struktur resmi;
-- perubahan hanya boleh dilakukan jika memperbaiki bug atau menyesuaikan template resmi.
+Untuk seluruh modul PDF (HTML-to-PDF):
+- jangan mengubah layout HTML/CSS template tanpa alasan kuat;
+- hormati ukuran kertas (F4/Legal portrait), margin, font, dan struktur resmi pemerintah;
+- perubahan hanya boleh dilakukan jika memperbaiki bug atau menyesuaikan template resmi Dinas Kominfo.
 
 ====================================================================
 14. PROJECT INFO
@@ -207,7 +207,7 @@ Technology Stack:
 - Styling: Tailwind CSS 4
 - Database: MongoDB Atlas (official driver)
 - Communication: Electron IPC
-- PDF: jsPDF & jspdf-autotable
+- PDF: Electron printToPDF() (HTML-to-PDF)
 - Packaging: electron-builder
 
 Application Architecture:

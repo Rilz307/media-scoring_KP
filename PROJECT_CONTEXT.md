@@ -34,7 +34,7 @@ v1.0.0
 
 Current Milestone
 
-Milestone 9 (Testing & UAT) - Pending
+Milestone 9 (Testing & UAT) - Active (Release Candidate stage)
 
 Project Progress
 
@@ -54,8 +54,6 @@ Feature Complete (Release Candidate)
 ## Known Limitations
 
 - Layout PDF Rekapitulasi belum sepenuhnya identik dengan template DOCX.
-- Rendering PDF bergantung pada kemampuan jsPDF sehingga line wrapping dapat sedikit berbeda dengan Microsoft Word.
-- Pengaturan koneksi MongoDB masih menggunakan environment configuration (belum tersedia UI untuk konfigurasi DB on-the-fly).
 - Belum terdapat mekanisme auto update aplikasi.
 - Belum dilakukan User Acceptance Testing (UAT) pada lingkungan pengguna akhir.
 
@@ -249,9 +247,7 @@ Electron Builder
 
 PDF
 
-jsPDF
-
-jspdf-autotable
+Electron Native printToPDF() (HTML-to-PDF)
 
 Environment
 
@@ -300,13 +296,19 @@ Only Main Process may communicate with MongoDB.
 Current
 
 src/
-
-    main/
-        config/
-        database/
-        ipc/
-        repositories/
-        index.js
+main/
+config/
+ConfigRepository.js
+ConfigService.js
+database/
+connection.js
+ipc/
+database.js
+media.js
+pdf.js
+repositories/
+MediaRepository.js
+index.js
 
     preload/
         index.js
@@ -321,22 +323,32 @@ src/
                 dashboard/
                 form/
                 layout/
+                startup/
                 ui/
-            config/
-            constants/
-            hooks/
-            layouts/
-            pages/
-            pdf/
+            context/
+                ConnectionContext.js
+            documents/
                 builders/
+                renderer/
+                templates/
+            pages/
+                DashboardPage.jsx
+                MediaDetailPage.jsx
+                MediaFormPage.jsx
+                NotFoundPage.jsx
+                StartupPage.jsx
+            pdf/
                 config/
                 constants/
-                fonts/
                 services/
-                templates/
             services/
+                MediaService.js
             styles/
             utils/
+                ReportBuilder.js
+                ScoreCalculator.js
+                GradeCalculator.js
+                MongoErrorTranslator.js
 
 ---
 
@@ -514,7 +526,7 @@ constants/mediaCriteria.js
 
 Scoring follows predefined score values.
 
-Total score determines grade.
+Total score determines the grade. The system maps the final score to configured grade labels and thresholds (for example, predikat such as "Tingkat I" to "Tingkat IV"). The file constants/gradeRules.js serves as the single source of truth for these grade rules and thresholds.
 
 ---
 
@@ -532,7 +544,7 @@ Responsible for
 - Search
 - Filter
 
-ReportService
+PdfExportService (Implemented under src/renderer/src/pdf/services/)
 
 Responsible for
 
@@ -541,19 +553,25 @@ Responsible for
 
 ---
 
-# Planned Utilities
+# Implemented Utilities
 
 ScoreCalculator
 
-Calculate total score.
+- Calculate total score and section sub-scores.
 
 GradeCalculator
 
-Determine grade.
+- Determine grade based on rules configuration.
 
-PDFHelper
+ReportBuilder
 
-Common PDF functions.
+- Normalize raw MongoDB documents for presentation (Single Source of Truth).
+
+MongoErrorTranslator
+
+- Translate database and network error messages into friendly Indonesian messages.
+
+(Note: Legacy helpers PDFHelper, ValidationHelper, and DateHelper were bypassed or replaced by inline/native operations).
 
 ---
 
@@ -641,17 +659,9 @@ Prettier
 
 ---
 
-# Packages NOT Yet Installed
+# Packages Installed
 
-mongodb
-
-dotenv
-
-jspdf
-
-jspdf-autotable
-
-These packages will be installed only when their milestone starts.
+Semua paket utama yang direncanakan (`mongodb`, `dotenv`, dll.) telah terinstal dan terkonfigurasi secara aktif dalam berkas `package.json` untuk mendukung alur operasi penuh. Paket `jspdf` dan `jspdf-autotable` telah dihapus sepenuhnya dari dependencies karena migrasi ke native HTML-to-PDF.
 
 ---
 
