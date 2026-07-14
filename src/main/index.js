@@ -6,6 +6,7 @@ import { connect, disconnect, setOnStateChange } from './database/connection'
 import { registerMediaIPCHandlers } from './ipc/media'
 import { registerDatabaseIPCHandlers } from './ipc/database'
 import { registerPdfIPCHandlers } from './ipc/pdf'
+import { registerAttachmentIPCHandlers } from './ipc/attachments'
 
 let mainWindow = null
 
@@ -62,6 +63,7 @@ app.whenReady().then(async () => {
   registerMediaIPCHandlers()
   registerDatabaseIPCHandlers()
   registerPdfIPCHandlers()
+  registerAttachmentIPCHandlers()
 
   // Set up connection state change callback to notify Renderer
   setOnStateChange((state) => {

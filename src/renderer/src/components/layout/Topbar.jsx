@@ -2,11 +2,20 @@ import { NavLink } from 'react-router-dom'
 import { Award, Database, Server, Clock, LogOut, RefreshCw } from 'lucide-react'
 import { useConnection } from '../../context/ConnectionContext'
 import { useState, useEffect, useRef } from 'react'
+import { useStorageStats } from '../../context/StorageStatsContext'
 
 function Topbar() {
   const connectionStatus = useConnection()
   const [showPopover, setShowPopover] = useState(false)
   const popoverRef = useRef(null)
+  const { storageStats, loading: statsLoading, refreshStorageStats } = useStorageStats()
+
+  // Refresh stats on popover open if database is connected
+  useEffect(() => {
+    if (showPopover && connectionStatus === 'CONNECTED') {
+      refreshStorageStats()
+    }
+  }, [showPopover, connectionStatus, refreshStorageStats])
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -97,6 +106,53 @@ function Topbar() {
                 </div>
               </div>
 
+              {/* Attachment Storage Capacity (GridFS) */}
+              {connectionStatus === 'CONNECTED' && (
+                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                    Penyimpanan Lampiran
+                  </span>
+                  {statsLoading && !storageStats ? (
+                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                      <RefreshCw size={12} className="animate-spin" />
+                      <span>Memuat kapasitas...</span>
+                    </div>
+                  ) : storageStats ? (
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between font-medium text-slate-700">
+                        <span>{storageStats.totalFiles} Berkas Diunggah</span>
+                        <span>
+                          {formatBytes(storageStats.totalSize)} / {formatBytes(storageStats.limit)}
+                        </span>
+                      </div>
+                      {/* Capacity progress bar */}
+                      <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-300 ${
+                            getStoragePercentage(storageStats) >= 90
+                              ? 'bg-rose-500'
+                              : getStoragePercentage(storageStats) >= 70
+                                ? 'bg-amber-500'
+                                : 'bg-blue-600'
+                          }`}
+                          style={{
+                            width: `${Math.min(100, getStoragePercentage(storageStats))}%`
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Batas Kuota Atlas Free</span>
+                        <span className="font-bold">
+                          {getStoragePercentage(storageStats).toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-400 italic">Gagal memuat status</span>
+                  )}
+                </div>
+              )}
+
               {/* Actions */}
               <div className="bg-slate-50 p-2 flex flex-col gap-1">
                 <button
@@ -141,6 +197,20 @@ function Topbar() {
       </nav>
     </header>
   )
+}
+
+function formatBytes(bytes, decimals = 1) {
+  if (!bytes) return '0 Bytes'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+}
+
+function getStoragePercentage(stats) {
+  if (!stats || !stats.limit) return 0
+  return (stats.totalSize / stats.limit) * 100
 }
 
 export default Topbar

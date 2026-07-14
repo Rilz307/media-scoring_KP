@@ -9,7 +9,7 @@ import ScoreSummary from './ScoreSummary'
 /**
  * Reusable MediaForm for creating and editing media entries with assessment engine.
  */
-function MediaForm({ initialData = null, onSave, onCancel, loading = false }) {
+function MediaForm({ initialData = null, onSave, onCancel, loading = false, storageStats = null }) {
   const [form, setForm] = useState({
     nama_media: '',
     perusahaan: '',
@@ -21,6 +21,7 @@ function MediaForm({ initialData = null, onSave, onCancel, loading = false }) {
   })
   const [answers, setAnswers] = useState({})
   const [errors, setErrors] = useState({})
+  const [attachments, setAttachments] = useState([])
 
   const totalScore = useMemo(() => {
     const criteriaList = mediaCriteria[form.jenis] || []
@@ -45,9 +46,27 @@ function MediaForm({ initialData = null, onSave, onCancel, loading = false }) {
           website: initialData.website || ''
         })
         setAnswers(initialData.answers || {})
+        setAttachments(initialData.attachments || [])
       })
     }
   }, [initialData])
+
+  const handleAttachFile = (requirementKey, file) => {
+    const newAttachment = {
+      id: crypto.randomUUID(),
+      originalName: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      size: file.size,
+      requirementKey,
+      localFile: file,
+      isQueued: true
+    }
+    setAttachments((prev) => [...prev, newAttachment])
+  }
+
+  const handleRemoveAttachment = (id) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id))
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -149,7 +168,8 @@ function MediaForm({ initialData = null, onSave, onCancel, loading = false }) {
         answers,
         totalScore,
         grade,
-        criteriaVersion
+        criteriaVersion,
+        attachments
       })
     } else {
       setErrors((prev) => ({
@@ -330,6 +350,10 @@ function MediaForm({ initialData = null, onSave, onCancel, loading = false }) {
           onAnswerChange={handleAnswerChange}
           validationErrors={errors}
           disabled={loading}
+          attachments={attachments}
+          onAttach={handleAttachFile}
+          onRemove={handleRemoveAttachment}
+          storageStats={storageStats}
         />
       </div>
 

@@ -10,7 +10,10 @@ import {
   Mail,
   Phone,
   MapPin,
-  Download
+  Download,
+  FileText,
+  Eye,
+  ExternalLink
 } from 'lucide-react'
 import MediaService from '../services/MediaService'
 import mediaCriteria from '../constants/mediaCriteria'
@@ -18,6 +21,8 @@ import gradeRules from '../constants/gradeRules'
 import normalizeReport from '../utils/ReportBuilder'
 import PdfPreviewModal from '../components/ui/PdfPreviewModal'
 import PdfExportService from '../pdf/services/PdfExportService'
+import AttachmentService from '../services/AttachmentService'
+import AttachmentViewerModal from '../components/ui/AttachmentViewerModal'
 
 export default function MediaDetailPage() {
   const { id } = useParams()
@@ -28,6 +33,42 @@ export default function MediaDetailPage() {
   const [error, setError] = useState(null)
   const [exporting, setExporting] = useState(false)
   const [previewData, setPreviewData] = useState({ isOpen: false, blobUrl: null, filename: '' })
+
+  const [attachmentPreview, setAttachmentPreview] = useState({
+    isOpen: false,
+    fileType: null,
+    blobUrl: null,
+    filename: '',
+    att: null
+  })
+  const [loadingActions, setLoadingActions] = useState(new Set())
+
+  const addLoadingKey = useCallback((key) => {
+    setLoadingActions((prev) => {
+      console.log('[Attachment] loadingActions BEFORE ADD:', [...prev])
+      const next = new Set([...prev, key])
+      console.log('[Attachment] loadingActions AFTER ADD:', [...next])
+      return next
+    })
+  }, [])
+
+  const removeLoadingKey = useCallback((key) => {
+    setLoadingActions((prev) => {
+      console.log('[Attachment] loadingActions BEFORE REMOVE:', [...prev])
+      const next = new Set(prev)
+      next.delete(key)
+      console.log('[Attachment] loadingActions AFTER REMOVE:', [...next])
+      return next
+    })
+  }, [])
+
+  // Defensive cleanup: reset all loading states on unmount
+  useEffect(() => {
+    return () => {
+      console.log('[Attachment] Component unmounting')
+      setLoadingActions(new Set())
+    }
+  }, [])
 
   const report = useMemo(() => {
     if (!media) return null
@@ -113,6 +154,176 @@ export default function MediaDetailPage() {
     } finally {
       setExporting(false)
     }
+  }
+
+  const handlePreviewAttachment = async (att) => {
+    // --- Schema audit & fileId guard ---
+    const fileId = att.fileId ?? att.identifier ?? att.gridFsId ?? null
+    if (!fileId) {
+      console.warn('[Attachment] Legacy/invalid schema detected', att)
+      alert(`Attachment "${att.originalName}" tidak memiliki fileId yang valid.`)
+      return
+    }
+    if (fileId !== att.fileId) {
+      console.warn('[Attachment] Legacy attachment schema detected', att)
+    }
+    const key = `preview-${fileId}`
+    console.log('[Attachment Action]', { action: 'preview', fileId, key })
+    try {
+      addLoadingKey(key)
+      const buffer = await AttachmentService.getBuffer(fileId)
+      const blob = new Blob([buffer], { type: att.mimeType })
+      const url = URL.createObjectURL(blob)
+
+      console.log('[Attachment] Opening preview modal for', fileId)
+      setAttachmentPreview({
+        isOpen: true,
+        fileType: att.mimeType === 'application/pdf' ? 'pdf' : 'image',
+        blobUrl: url,
+        filename: att.originalName,
+        att: { ...att, fileId } // normalise fileId in stored att
+      })
+    } catch (err) {
+      console.error('[Attachment] Exception in Preview:', err)
+      alert(`Gagal memuat pratinjau: ${err.message}`)
+    } finally {
+      console.log('[Attachment] Preview finally block running for', fileId)
+      removeLoadingKey(key)
+    }
+  }
+
+  const handleNativeOpen = async (att) => {
+    // --- Schema audit & fileId guard ---
+    const fileId = att.fileId ?? att.identifier ?? att.gridFsId ?? null
+    if (!fileId) {
+      console.warn('[Attachment] Legacy/invalid schema detected', att)
+      alert(`Attachment "${att.originalName}" tidak memiliki fileId yang valid.`)
+      return
+    }
+    if (fileId !== att.fileId) {
+      console.warn('[Attachment] Legacy attachment schema detected', att)
+    }
+    const key = `open-${fileId}`
+    console.log('[Attachment Action]', { action: 'open', fileId, key })
+    try {
+      addLoadingKey(key)
+      await AttachmentService.openNative(fileId, att.originalName)
+    } catch (err) {
+      console.error('[Attachment] Exception in Open:', err)
+      alert(`Gagal membuka file: ${err.message}`)
+    } finally {
+      console.log('[Attachment] Open finally block running for', fileId)
+      removeLoadingKey(key)
+    }
+  }
+
+  const handleDownloadAttachment = async (att) => {
+    // --- Schema audit & fileId guard ---
+    const fileId = att.fileId ?? att.identifier ?? att.gridFsId ?? null
+    if (!fileId) {
+      console.warn('[Attachment] Legacy/invalid schema detected', att)
+      alert(`Attachment "${att.originalName}" tidak memiliki fileId yang valid.`)
+      return
+    }
+    if (fileId !== att.fileId) {
+      console.warn('[Attachment] Legacy attachment schema detected', att)
+    }
+    const key = `download-${fileId}`
+    console.log('[Attachment Action]', { action: 'download', fileId, key })
+    try {
+      addLoadingKey(key)
+      await AttachmentService.download(fileId, att.originalName)
+    } catch (err) {
+      console.error('[Attachment] Exception in Download:', err)
+      alert(`Gagal mengunduh file: ${err.message}`)
+    } finally {
+      console.log('[Attachment] Download finally block running for', fileId)
+      removeLoadingKey(key)
+    }
+  }
+
+  const renderAttachments = () => {
+    if (!media.attachments || media.attachments.length === 0) {
+      return (
+        <div className="text-sm text-slate-400 italic py-2">
+          Tidak ada dokumen pendukung yang dilampirkan.
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-3">
+        {media.attachments.map((att) => {
+          // --- Runtime schema audit ---
+          console.log('[Attachment]', {
+            id: att.id,
+            fileId: att.fileId,
+            originalName: att.originalName,
+            mimeType: att.mimeType,
+            size: att.size
+          })
+          if (!att.fileId) {
+            console.warn('[Attachment] fileId is missing for attachment:', att)
+          }
+
+          const resolvedFileId = att.fileId ?? att.identifier ?? att.gridFsId ?? null
+
+          return (
+            <div
+              key={att.id}
+              className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-3"
+            >
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="bg-blue-100 p-2 rounded text-blue-600 flex-shrink-0">
+                  <FileText size={20} />
+                </div>
+                <div className="min-w-0">
+                  <p
+                    className="text-sm font-semibold text-slate-800 truncate"
+                    title={att.originalName}
+                  >
+                    {att.originalName}
+                  </p>
+                  <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                    <span>{(att.size / 1024 / 1024).toFixed(2)} MB</span>
+                    <span>•</span>
+                    <span className="uppercase text-[10px] font-bold bg-slate-200/50 px-1.5 py-0.5 rounded">
+                      {att.requirementKey || 'UMUM'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <button
+                  onClick={() => handlePreviewAttachment(att)}
+                  disabled={!resolvedFileId || loadingActions.has(`preview-${resolvedFileId}`)}
+                  className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
+                  title={resolvedFileId ? 'Preview' : 'File ID tidak tersedia'}
+                >
+                  <Eye size={18} />
+                </button>
+                <button
+                  onClick={() => handleNativeOpen(att)}
+                  disabled={!resolvedFileId || loadingActions.has(`open-${resolvedFileId}`)}
+                  className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors disabled:opacity-50"
+                  title={resolvedFileId ? 'Buka Eksternal' : 'File ID tidak tersedia'}
+                >
+                  <ExternalLink size={18} />
+                </button>
+                <button
+                  onClick={() => handleDownloadAttachment(att)}
+                  disabled={!resolvedFileId || loadingActions.has(`download-${resolvedFileId}`)}
+                  className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors disabled:opacity-50"
+                  title={resolvedFileId ? 'Unduh' : 'File ID tidak tersedia'}
+                >
+                  <Download size={18} />
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
   const renderAssessmentDetails = () => {
@@ -312,6 +523,14 @@ export default function MediaDetailPage() {
               </div>
             </div>
 
+            {/* Attachments Card */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+              <h3 className="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3">
+                Dokumen Pendukung
+              </h3>
+              {renderAttachments()}
+            </div>
+
             {/* Assessment Details Card */}
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
               <h3 className="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3">
@@ -430,6 +649,31 @@ export default function MediaDetailPage() {
             setExporting(false)
           }
         }}
+      />
+
+      {/* Attachment Preview Modal */}
+      <AttachmentViewerModal
+        isOpen={attachmentPreview.isOpen}
+        fileType={attachmentPreview.fileType}
+        blobUrl={attachmentPreview.blobUrl}
+        filename={attachmentPreview.filename}
+        onClose={() => {
+          console.log('[Attachment] Closing preview modal')
+          // Capture blobUrl before state update, revoke AFTER state update
+          // to avoid race condition where modal DOM persists with revoked URL
+          const urlToRevoke = attachmentPreview.blobUrl
+          setAttachmentPreview({
+            isOpen: false,
+            fileType: null,
+            blobUrl: null,
+            filename: '',
+            att: null
+          })
+          // Defer revocation to next microtask so React can unmount the embed/img first
+          if (urlToRevoke) setTimeout(() => URL.revokeObjectURL(urlToRevoke), 0)
+        }}
+        onDownload={() => handleDownloadAttachment(attachmentPreview.att)}
+        onNativeOpen={() => handleNativeOpen(attachmentPreview.att)}
       />
     </div>
   )

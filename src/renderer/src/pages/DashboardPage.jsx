@@ -6,6 +6,8 @@ import ConfirmDialog from '../components/ui/ConfirmDialog'
 import PdfPreviewModal from '../components/ui/PdfPreviewModal'
 import gradeRules from '../constants/gradeRules'
 import PdfExportService from '../pdf/services/PdfExportService'
+import { useStorageStats } from '../context/StorageStatsContext'
+import StorageIndicator from '../components/ui/StorageIndicator'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -18,6 +20,7 @@ export default function DashboardPage() {
   const [filterType, setFilterType] = useState('Semua Jenis')
   const [filterGrade, setFilterGrade] = useState('Semua Grade')
   const [sortBy, setSortBy] = useState('recently_modified')
+  const { storageStats, storagePercentage, refreshStorageStats } = useStorageStats()
 
   // Toast / Success message state
   const [toast, setToast] = useState(null)
@@ -86,10 +89,12 @@ export default function DashboardPage() {
     }
 
     loadData()
+    refreshStorageStats()
+
     return () => {
       active = false
     }
-  }, [])
+  }, [refreshStorageStats])
 
   const handleDeleteClick = (id) => {
     setDeletingId(id)
@@ -101,9 +106,10 @@ export default function DashboardPage() {
       setDeleteLoading(true)
       await MediaService.delete(deletingId)
       setToast('Media berhasil dihapus')
-      // Refresh list
+      // Refresh list and storage stats
       const data = await MediaService.getAll()
       setMediaList(data)
+      refreshStorageStats()
     } catch (err) {
       setToast(err.message || 'Gagal menghapus media')
     } finally {
@@ -300,6 +306,33 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Storage Capacity Warning Banners */}
+      {storageStats && storagePercentage >= 70 && (
+        <div
+          className={`border rounded-xl p-4 flex items-start gap-3 shadow-sm ${
+            storagePercentage >= 90
+              ? 'bg-red-50 border-red-100 text-red-800'
+              : 'bg-amber-50 border-amber-100 text-amber-800'
+          }`}
+        >
+          <AlertTriangle
+            size={20}
+            className={`flex-shrink-0 mt-0.5 ${
+              storagePercentage >= 90 ? 'text-red-600' : 'text-amber-600'
+            }`}
+          />
+          <div className="space-y-1">
+            <p className="text-xs font-semibold leading-relaxed">
+              {storagePercentage >= 98
+                ? 'Penyimpanan lampiran penuh. Pengunggahan file baru sementara dinonaktifkan.'
+                : storagePercentage >= 90
+                  ? `Penyimpanan lampiran hampir penuh (${storagePercentage.toFixed(1)}% terpakai).`
+                  : `Penyimpanan lampiran telah digunakan sebesar ${storagePercentage.toFixed(1)}%.`}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header / Action Area */}
       <div className="flex items-end justify-between border-b border-slate-200 pb-5">
         <div>
@@ -326,8 +359,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Statistics Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Header Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Card 1: Total Media */}
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -380,6 +413,9 @@ export default function DashboardPage() {
           </div>
           <div className="text-xs text-slate-400 mt-1">Dihitung otomatis</div>
         </div>
+
+        {/* Card 5: Storage Stats */}
+        <StorageIndicator />
       </div>
 
       {/* Search & Filter Controls */}

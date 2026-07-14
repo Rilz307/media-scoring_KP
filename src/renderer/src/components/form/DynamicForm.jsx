@@ -6,7 +6,11 @@ function DynamicForm({
   answers = {},
   onAnswerChange,
   validationErrors = {},
-  disabled = false
+  disabled = false,
+  attachments = [],
+  onAttach,
+  onRemove,
+  storageStats = null
 }) {
   const sections = mediaCriteria[mediaType] || []
 
@@ -37,6 +41,10 @@ function DynamicForm({
                 onChange={(value) => onAnswerChange(question.id, value)}
                 disabled={disabled}
                 error={validationErrors[question.id]}
+                attachments={attachments}
+                onAttach={onAttach}
+                onRemove={onRemove}
+                storageStats={storageStats}
               />
             ))}
           </div>

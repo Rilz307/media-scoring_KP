@@ -1,10 +1,24 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 import StartupPage from '../../pages/StartupPage'
 import { ConnectionContext } from '../../context/ConnectionContext'
+import { StorageStatsContext } from '../../context/StorageStatsContext'
+import AttachmentService from '../../services/AttachmentService'
 
 export default function ConnectionGuard() {
   const [status, setStatus] = useState('CONNECTING')
+  const [storageStats, setStorageStats] = useState(null)
+
+  const refreshStorageStats = useCallback(async () => {
+    try {
+      const stats = await AttachmentService.getStorageStats()
+      setStorageStats(stats)
+      return stats
+    } catch (err) {
+      console.error('Failed to refresh storage statistics:', err)
+      return null
+    }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -39,10 +53,35 @@ export default function ConnectionGuard() {
     }
   }, [])
 
+  // Load storage stats when database successfully connects
+  useEffect(() => {
+    if (status === 'CONNECTED') {
+      let active = true
+      Promise.resolve().then(() => {
+        if (active) {
+          refreshStorageStats()
+        }
+      })
+      return () => {
+        active = false
+      }
+    }
+    return undefined
+  }, [status, refreshStorageStats])
+
+  const storagePercentage = useMemo(() => {
+    if (!storageStats || !storageStats.limit) return 0
+    return (storageStats.totalSize / storageStats.limit) * 100
+  }, [storageStats])
+
   if (status === 'CONNECTED') {
     return (
       <ConnectionContext.Provider value={status}>
-        <Outlet />
+        <StorageStatsContext.Provider
+          value={{ storageStats, storagePercentage, refreshStorageStats }}
+        >
+          <Outlet />
+        </StorageStatsContext.Provider>
       </ConnectionContext.Provider>
     )
   }

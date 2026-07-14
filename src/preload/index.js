@@ -29,6 +29,16 @@ const api = {
   pdf: {
     printHtml: (html) => ipcRenderer.invoke('pdf:printHtml', html)
   },
+  attachments: {
+    upload: (filePath, originalName, mimeType) =>
+      ipcRenderer.invoke('attachment:upload', filePath, originalName, mimeType),
+    download: (fileId, defaultFilename) =>
+      ipcRenderer.invoke('attachment:download', fileId, defaultFilename),
+    getBuffer: (fileId) => ipcRenderer.invoke('attachment:getBuffer', fileId),
+    openNative: (fileId, filename) => ipcRenderer.invoke('attachment:openNative', fileId, filename),
+    delete: (fileId) => ipcRenderer.invoke('attachment:delete', fileId),
+    getStorageStats: () => ipcRenderer.invoke('attachment:getStorageStats')
+  },
   system: {
     openExternal: (url) => {
       const { shell } = require('electron')

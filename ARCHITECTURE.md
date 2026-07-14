@@ -135,19 +135,19 @@ MediaDetailPage.jsx
 MediaFormPage.jsx
 NotFoundPage.jsx
 StartupPage.jsx
-            pdf/
-                config/
-                constants/
-                services/
-                    PdfExportService.js
-            services/
-                MediaService.js
-            styles/
-            utils/
-                ReportBuilder.js
-                ScoreCalculator.js
-                GradeCalculator.js
-                MongoErrorTranslator.js
+pdf/
+config/
+constants/
+services/
+PdfExportService.js
+services/
+MediaService.js
+styles/
+utils/
+ReportBuilder.js
+ScoreCalculator.js
+GradeCalculator.js
+MongoErrorTranslator.js
 
 ---
 

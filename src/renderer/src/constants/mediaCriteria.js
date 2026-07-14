@@ -5,7 +5,7 @@
  * All wording, typos, and formatting match the official forms exactly.
  */
 
-export const criteriaVersion = 3
+export const criteriaVersion = 4
 
 export const mediaCriteria = {
   SIBER: [
@@ -54,6 +54,7 @@ export const mediaCriteria = {
               points: 12
             },
             { value: 'siber_q4_opt2', label: 'Terverifikasi administrasi', points: 8 },
+            { value: 'proses_pendaftaran', label: 'Proses Pendaftaran', points: 6 },
             { value: 'siber_q4_opt3', label: 'Tidak terverifikasi', points: 0 }
           ]
         },

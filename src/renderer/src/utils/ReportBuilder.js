@@ -59,6 +59,7 @@ export function normalizeReport(media, mediaCriteria) {
     updatedAt: media.updatedAt || null,
     criteriaVersion: media.criteriaVersion || null,
     sections,
+    attachments: media.attachments || [],
     // Read totalScore and grade directly from the database record (no recalculation)
     totalScore: typeof media.totalScore === 'number' ? media.totalScore : 0,
     grade: media.grade || null

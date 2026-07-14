@@ -115,11 +115,79 @@ export default class MediaDetailViewModel {
       `
     }
 
+    const attachments = report.attachments || []
+
+    let attachmentRowsHtml = ''
+    let attachmentNo = 1
+
+    const otherKeys = [...new Set(attachments.map((a) => a.requirementKey || 'UMUM'))]
+
+    otherKeys.forEach((key) => {
+      const matchedFiles = attachments.filter((a) => (a.requirementKey || 'UMUM') === key)
+      if (matchedFiles.length === 0) return
+
+      let label = key === 'UMUM' ? 'Lain-lain / Pendukung Ekstra' : `Bukti: ${key}`
+
+      if (key !== 'UMUM') {
+        for (const sec of report.sections) {
+          for (const q of sec.questions) {
+            if (q.id === key) {
+              label = `Bukti: ${q.label}`
+              break
+            }
+          }
+        }
+      }
+
+      let filesHtml = ''
+      if (matchedFiles.length <= 2) {
+        filesHtml = matchedFiles.map((f) => f.originalName).join('<br />')
+      } else {
+        filesHtml =
+          matchedFiles
+            .slice(0, 2)
+            .map((f) => f.originalName)
+            .join('<br />') + `<br /><i>+${matchedFiles.length - 2} file lainnya</i>`
+      }
+
+      attachmentRowsHtml += `
+        <tr>
+          <td style="text-align: center;">${attachmentNo++}</td>
+          <td>${label}</td>
+          <td style="text-align: center;">Dilampirkan</td>
+          <td>${filesHtml}</td>
+        </tr>
+      `
+    })
+
+    let attachmentTableHtml = ''
+    if (attachmentRowsHtml) {
+      attachmentTableHtml = `
+      <div style="margin-bottom: 20pt; page-break-inside: auto;">
+        <h3 style="font-size: 11pt; margin-bottom: 8pt; font-weight: bold;">DAFTAR KELENGKAPAN DOKUMEN</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 5%;">NO</th>
+              <th style="width: 40%;">JENIS DOKUMEN</th>
+              <th style="width: 20%;">STATUS</th>
+              <th style="width: 35%;">NAMA FILE</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${attachmentRowsHtml}
+          </tbody>
+        </table>
+      </div>
+      `
+    }
+
     return {
       nama_media: report.nama_media || '..................',
       perusahaan: report.perusahaan || '..................',
       tableHeaders: headersHtml,
       tableRows: rowsHtml,
+      attachmentTable: attachmentTableHtml,
       tanggal: dateStr
     }
   }

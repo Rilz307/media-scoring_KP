@@ -59,19 +59,19 @@ _(Belum ada tangkapan layar yang ditambahkan. Anda dapat menambahkan *screenshot
 
 ## Fitur Utama
 
-| Fitur                   | Keterangan                                                      |
-| ----------------------- | --------------------------------------------------------------- |
-| Manajemen Data Media    | Input, edit, hapus data media Cetak / Elektronik / Siber        |
-| Kalkulasi Skor Otomatis | Skor dihitung real-time dari kriteria yang dikonfigurasi        |
-| Grade Determination     | Grade ditetapkan otomatis dari threshold skor yang dikonfigurasi dan label predikat (misalnya Tingkat I–IV) |
-| Form Dinamis            | Form penilaian beradaptasi sesuai jenis media yang dipilih      |
-| PDF Detail Verifikasi   | Laporan individual sesuai format DOCX resmi Kominfo             |
+| Fitur                   | Keterangan                                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Manajemen Data Media    | Input, edit, hapus data media Cetak / Elektronik / Siber                                                               |
+| Kalkulasi Skor Otomatis | Skor dihitung real-time dari kriteria yang dikonfigurasi                                                               |
+| Grade Determination     | Grade ditetapkan otomatis dari threshold skor yang dikonfigurasi dan label predikat (misalnya Tingkat I–IV)            |
+| Form Dinamis            | Form penilaian beradaptasi sesuai jenis media yang dipilih                                                             |
+| PDF Detail Verifikasi   | Laporan individual sesuai format DOCX resmi Kominfo                                                                    |
 | PDF Rekapitulasi        | Dokumen "Persetujuan Tim Verifikator" semua media sekaligus yang menampilkan predikat grade aktual masing-masing media |
-| PDF Preview System      | Pratinjau dalam aplikasi, download hanya jika diinginkan        |
-| Signature Bottom Anchor | Tanda tangan selalu menempel di bawah halaman terakhir          |
-| Pagination Engine       | Page break otomatis + reserved signature zone (80mm)            |
-| Portrait-Only Mode      | Semua dokumen dipaksa portrait sesuai standar surat pemerintah  |
-| Zero-Setup Execution    | Double-click `.exe` langsung berjalan, tanpa instalasi tambahan |
+| PDF Preview System      | Pratinjau dalam aplikasi, download hanya jika diinginkan                                                               |
+| Signature Bottom Anchor | Tanda tangan selalu menempel di bawah halaman terakhir                                                                 |
+| Pagination Engine       | Page break otomatis + reserved signature zone (80mm)                                                                   |
+| Portrait-Only Mode      | Semua dokumen dipaksa portrait sesuai standar surat pemerintah                                                         |
+| Zero-Setup Execution    | Double-click `.exe` langsung berjalan, tanpa instalasi tambahan                                                        |
 
 ---
 
@@ -128,7 +128,7 @@ npm install
 
 ### 3. Konfigurasi Database (Dynamic In-App Setup)
 
-Aplikasi ini menggunakan **Dynamic In-App Configuration Settings**. Anda tidak wajib mengonfigurasi file `.env` di lingkungan produksi maupun pengembangan. 
+Aplikasi ini menggunakan **Dynamic In-App Configuration Settings**. Anda tidak wajib mengonfigurasi file `.env` di lingkungan produksi maupun pengembangan.
 
 Pada startup pertama kali, aplikasi akan mendeteksi status koneksi database. Jika belum dikonfigurasi, Anda akan diarahkan secara otomatis ke halaman **Startup / Connection Manager** untuk memasukkan MongoDB Atlas Connection URI Anda melalui GUI.
 

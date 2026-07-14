@@ -47,6 +47,9 @@
         word-break: break-word;
         overflow-wrap: anywhere;
       }
+      tr {
+        page-break-inside: avoid;
+      }
       th {
         font-weight: bold;
         text-align: center;
@@ -89,6 +92,8 @@
         {{tableRows}}
       </tbody>
     </table>
+
+    {{attachmentTable}}
 
     <div class="declaration">
       Demikian Formulir isian ini Saya buat dengan sesungguhnya diatas materai yang cukup dan

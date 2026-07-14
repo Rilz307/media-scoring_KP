@@ -130,11 +130,6 @@ export class MediaRepository {
     }
   }
 
-  /**
-   * Delete a media document.
-   * @param {string} id The 24-character hexadecimal ObjectId string.
-   * @returns {Promise<Object>} Object indicating success status.
-   */
   static async delete(id) {
     try {
       if (!ObjectId.isValid(id)) {
@@ -142,6 +137,24 @@ export class MediaRepository {
       }
 
       const collection = this.getCollection()
+      const document = await collection.findOne({ _id: new ObjectId(id) })
+
+      if (document && document.attachments && Array.isArray(document.attachments)) {
+        const { AttachmentRepository } = await import('./AttachmentRepository')
+        for (const attachment of document.attachments) {
+          if (attachment.fileId) {
+            try {
+              await AttachmentRepository.delete(attachment.fileId)
+            } catch (err) {
+              console.error(
+                `Failed to delete orphaned GridFS file ${attachment.fileId}:`,
+                err.message
+              )
+            }
+          }
+        }
+      }
+
       const result = await collection.deleteOne({ _id: new ObjectId(id) })
 
       if (result.deletedCount === 0) {
