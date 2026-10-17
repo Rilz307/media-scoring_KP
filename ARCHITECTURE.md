@@ -159,6 +159,7 @@ Menghapus media otomatis menghapus berkas GridFS terkait (`MediaRepository.delet
 Konfigurasi koneksi **tidak** dibaca dari `.env`. Disimpan sebagai `config.json` di folder `userData` Electron (`app.getPath('userData')`) melalui `ConfigService` + `ConfigRepository`, dan diisi lewat GUI (StartupPage → ConnectionManager).
 
 - `dotenv` terdaftar di `package.json` tetapi **tidak dipakai** di source. `.env.example` hanya acuan format connection string.
+- **Dev vs produksi memakai userData berbeda.** Saat `!app.isPackaged`, `src/main/index.js` memanggil `app.setPath('userData', <appData>/media-scoring-system-dev)`. Build terpaket tetap memakai `media-scoring-system`. Path config dihitung lazy oleh `ConfigRepository`. Ini mencegah `config.json` dev bocor ke aplikasi hasil build (yang membuat build terlihat "sudah login").
 - State machine koneksi: `NOT_CONFIGURED` → `CONNECTING` → `CONNECTED` / `FAILED`; `DISCONNECTED`.
 - Perubahan state dikirim ke renderer lewat event `db:connection-state-changed`.
 

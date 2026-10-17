@@ -35,6 +35,7 @@ Panduan untuk AI coding agent (OpenCode, Claude, Gemini, dll.) yang bekerja di r
 ## Gotcha
 
 - URI database **bukan** dari `.env` (`dotenv` terdaftar tapi tidak dipakai). Disimpan di `config.json` pada `userData` Electron via `ConfigService`/`ConfigRepository`, diisi lewat GUI Connection Manager. `.env.example` hanya acuan format.
+- Dev & build terpaket memakai **userData berbeda**: dev → `media-scoring-system-dev`, terpaket → `media-scoring-system` (diatur di `src/main/index.js` saat `!app.isPackaged`). Path config dihitung lazy di `ConfigRepository`. Ini mencegah `config.json` dev bocor ke build (yang membuat build tampak "sudah login").
 - Database `media_scoring`; collection `media` + GridFS bucket `attachments` (`attachments.files`/`.chunks`). Hapus media ikut menghapus berkas GridFS. Batas di `src/main/config/attachmentConfig.js`.
 - PDF memakai `printToPDF` via IPC `pdf:printHtml`; preview memakai `iframe` `srcDoc`.
 - **Jangan commit `.env`** (berisi kredensial). Update `ARCHITECTURE.md`/`README.md`/`CHANGELOG.md` saat perilaku berubah.
@@ -57,3 +58,4 @@ Panduan untuk AI coding agent (OpenCode, Claude, Gemini, dll.) yang bekerja di r
 ## CI
 
 - `.github/workflows/mongodb-keepalive.yml` melakukan ping Atlas tiap 3 hari (secret `MONGODB_URI`) agar Free cluster (M0) tidak auto-pause, sekaligus menjalankan `liskin/gh-workflow-keepalive` untuk mencegah workflow terjadwal dinonaktifkan GitHub setelah 60 hari tanpa aktivitas.
+- `.github/workflows/release.yml` membangun paket Windows (nsis + portable) dan Linux (AppImage) saat tag `v*` di-push, lalu membuat **draft** GitHub Release berisi file terlampir. `workflow_dispatch` hanya membangun tanpa merilis. Build Windows/Linux dilakukan di runner GitHub (tidak perlu `wine`/`gh` lokal).

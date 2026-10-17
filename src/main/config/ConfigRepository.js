@@ -3,8 +3,13 @@ import path from 'path'
 import fs from 'fs/promises'
 
 class ConfigRepository {
-  constructor() {
-    this.configPath = path.join(app.getPath('userData'), 'config.json')
+  /**
+   * Resolve the config file path lazily so that any `app.setPath('userData', ...)`
+   * override performed at startup (e.g. dev/prod isolation) is honored.
+   * @returns {string} Absolute path to config.json.
+   */
+  get configPath() {
+    return path.join(app.getPath('userData'), 'config.json')
   }
 
   async read() {

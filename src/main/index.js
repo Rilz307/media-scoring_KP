@@ -10,6 +10,12 @@ import { registerAttachmentIPCHandlers } from './ipc/attachments'
 
 let mainWindow = null
 
+// Isolate development data from packaged builds on the same machine so a
+// developer's local config.json never leaks into the shipped application.
+if (!app.isPackaged) {
+  app.setPath('userData', join(app.getPath('appData'), 'media-scoring-system-dev'))
+}
+
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({

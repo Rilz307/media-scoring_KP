@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 This project follows a milestone-based development process.
 
+## [Unreleased]
+
+### Added
+
+- **Release CI**: `.github/workflows/release.yml` membangun paket Windows (nsis + portable) dan Linux (AppImage) saat tag `v*` di-push, lalu membuat draft GitHub Release dengan file terlampir. Dapat dijalankan manual via `workflow_dispatch` (build saja, tanpa merilis).
+
+### Fixed
+
+- **Dev/Prod Data Isolation**: Development kini memakai `userData` terpisah (`media-scoring-system-dev`) dari build terpaket (`media-scoring-system`), sehingga `config.json` dev tidak lagi bocor ke aplikasi hasil build (yang membuat build tampak "sudah login").
+
 # [1.0.0] - 2026-07-09
 
 ## Milestone 9 - Testing & UAT
