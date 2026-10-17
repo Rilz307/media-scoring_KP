@@ -57,5 +57,6 @@ Panduan untuk AI coding agent (OpenCode, Claude, Gemini, dll.) yang bekerja di r
 
 ## CI
 
-- `.github/workflows/mongodb-keepalive.yml` melakukan ping Atlas tiap 3 hari (secret `MONGODB_URI`) agar Free cluster (M0) tidak auto-pause, sekaligus menjalankan `liskin/gh-workflow-keepalive` untuk mencegah workflow terjadwal dinonaktifkan GitHub setelah 60 hari tanpa aktivitas.
+- Workflow memakai Node 24 (`actions/setup-node@v5`) dan runner `ubuntu-24.04` yang di-pin (bukan `ubuntu-latest`, menghindari migrasi runner mendadak). Action dipakai versi runtime Node 24 (`checkout@v5`, `setup-node@v5`, `upload-artifact@v6`, `download-artifact@v7`, `softprops/action-gh-release@v3`).
+- `.github/workflows/mongodb-keepalive.yml` melakukan ping Atlas tiap 3 hari (secret `MONGODB_URI`) agar Free cluster (M0) tidak auto-pause (Atlas mem-pause setelah 30 hari tanpa koneksi), sekaligus menjalankan `liskin/gh-workflow-keepalive` (hanya saat `schedule`) untuk me-reset timer nonaktif GitHub (scheduled workflow dinonaktifkan setelah 60 hari tanpa commit ke branch default). Cadence 3 hari memberi margin jauh terhadap kedua ambang tersebut.
 - `.github/workflows/release.yml` membangun paket Windows (nsis + portable) dan Linux (AppImage) saat tag `v*` di-push, lalu membuat **draft** GitHub Release berisi file terlampir. `workflow_dispatch` hanya membangun tanpa merilis. Build Windows/Linux dilakukan di runner GitHub (tidak perlu `wine`/`gh` lokal).
