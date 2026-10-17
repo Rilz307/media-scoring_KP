@@ -1,0 +1,36 @@
+name: MongoDB Keep-Alive
+
+on:
+  schedule:
+    # Every 3 days at 02:00 UTC to prevent Atlas Free (M0) auto-pause (30 days idle)
+    - cron: '0 2 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping MongoDB Atlas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies (skip native postinstall)
+        run: npm ci --ignore-scripts
+      - name: Ping database
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: node scripts/keepalive.mjs
+
+  workflow-keepalive:
+    name: Prevent scheduled workflow auto-disable
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1

@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: id.go.kendari.kominfo.media-scoring-system
 productName: media-scoring-system
 directories:
   buildResources: build
@@ -35,11 +35,8 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: electronjs.org
+  maintainer: Dinas Komunikasi dan Informatika Kota Kendari
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
-publish:
-  provider: generic
-  url: https://example.com/auto-updates

@@ -5,10 +5,10 @@
   "main": "./out/main/index.js",
   "author": "Dinas Komunikasi dan Informatika Kota Kendari",
   "license": "MIT",
-  "homepage": "https://github.com/your-org/media-scoring-system",
+  "homepage": "https://github.com/Rilz307/media-scoring_KP",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/media-scoring-system.git"
+    "url": "https://github.com/Rilz307/media-scoring_KP.git"
   },
   "keywords": [
     "electron",

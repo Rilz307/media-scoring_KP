@@ -49,7 +49,7 @@ Thumbs.db
 desktop.ini
 
 # ─── IDE / Editor Configs ───────────────────────────────────────────────────
-.vscode/
+# Note: .vscode/ is intentionally tracked to share debug launch configs.
 .idea/
 *.sublime-project
 *.sublime-workspace
@@ -60,7 +60,3 @@ desktop.ini
 scratch/
 test-*.mjs
 debug-*.js
-
-# ─── AI Assistant Configs ───────────────────────────────────────────────────
-GEMINI.md
-.gemini/
